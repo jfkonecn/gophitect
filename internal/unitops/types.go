@@ -21,7 +21,7 @@ type UnitOperation interface {
 }
 
 type FunctionDefinition interface {
-	GetFunctionName()
+	GetFunctionName() string
 	GetCodeComments() string
 	GetUnitOperations() []UnitOperation
 	GetShouldStub() bool
