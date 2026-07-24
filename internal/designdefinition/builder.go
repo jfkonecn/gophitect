@@ -29,12 +29,22 @@ func (spec *DesignDefinitionSpec) AddTestFile(f *unitops.TestFileDefinition) {
 }
 
 type TypeDefinition struct {
-	name     string
-	filePath string
-	prompt   string
+	name           string
+	filePath       string
+	prompt         string
+	dependentTypes []*TypeDefinition
+}
+
+type FunctionDefinition struct {
+	name        string
+	filePath    string
+	prompt      string
+	inputTypes  []*TypeDefinition
+	outputTypes []*TypeDefinition
 }
 
 type DesignDefinition struct {
+	Types []*TypeDefinition
 }
 
 func (spec *DesignDefinitionSpec) Build() DesignDefinition {
