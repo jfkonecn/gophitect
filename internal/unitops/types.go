@@ -4,26 +4,26 @@ package unitops
 type TypeDefinition interface {
 	GetTypeName() string
 	GetCodeComments() string
-	GetDependentTypes() []TypeDefinition
+	GetDependentTypes() []*TypeDefinition
 	GetFilePath() string
 	GetShouldStub() bool
 }
 
 type UnitOperation interface {
 	GetUnitOperationTypeDefinition() string
-	GetInputTypes() []TypeDefinition
-	GetOutputTypes() []TypeDefinition
+	GetInputTypes() []*TypeDefinition
+	GetOutputTypes() []*TypeDefinition
 	GetPrompt() string
 	GetCodeComments() string
 	GetDocumentation() string
-	GetFunctionCalls() []FunctionDefinition
+	GetFunctionCalls() []*FunctionDefinition
 	GetShouldStub() bool
 }
 
 type FunctionDefinition interface {
 	GetFunctionName() string
 	GetCodeComments() string
-	GetUnitOperations() []UnitOperation
+	GetUnitOperations() []*UnitOperation
 	GetShouldStub() bool
 }
 
@@ -36,21 +36,21 @@ type TestCase interface {
 
 type TestSuite interface {
 	GetCodeComments() string
-	GetFunctionDefinition() FunctionDefinition
-	GetTestCases() []TestCase
+	GetFunctionDefinition() *FunctionDefinition
+	GetTestCases() []*TestCase
 }
 
 type TestFileDefinition interface {
 	FileDefinitionPrompt() string
 	GetFilePath() string
 	GetCodeComments() string
-	GetTestSuites() []TestSuite
+	GetTestSuites() []*TestSuite
 }
 
 type ProductionFileDefinition interface {
 	FileDefinitionPrompt() string
 	GetFilePath() string
 	GetCodeComments() string
-	GetTypeDefinitions() []TypeDefinition
-	GetFunctionDefinitions() []FunctionDefinition
+	GetTypeDefinitions() []*TypeDefinition
+	GetFunctionDefinitions() []*FunctionDefinition
 }
