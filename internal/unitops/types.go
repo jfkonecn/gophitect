@@ -27,16 +27,32 @@ type FunctionDefinition interface {
 	GetShouldStub() bool
 }
 
-type FileDefinition interface {
+type TestCase interface {
+	GetName() string
+	GetDefinitionPrompt() string
+	GetCodeComments() string
+	GetShouldStub() bool
+}
+
+type TestSuite interface {
+	GetCodeComments() string
+	GetFunctionDefinition() FunctionDefinition
+	GetTestCases() []TestCase
+}
+
+type TestFileDefinition interface {
+	FileDefinitionPrompt() string
+	GetFilePath() string
+	GetCodeComments() string
+	GetTestSuites() []TestSuite
+}
+
+type ProductionFileDefinition interface {
 	FileDefinitionPrompt() string
 	GetFilePath() string
 	GetCodeComments() string
 	GetTypeDefinitions() []TypeDefinition
 	GetFunctionDefinitions() []FunctionDefinition
-}
-
-// A Map unit operation converts one value or type into another.
-type Map struct {
 }
 
 // A Filter unit operation removes, rejects, or reroutes data.
