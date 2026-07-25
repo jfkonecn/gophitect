@@ -55,7 +55,25 @@ func (m Map) GetPrompt() (string, error) {
 	}
 
 	if m.CodeComments != "" {
-		_, err := fmt.Fprintf(&sb, "Add these comments %s\n", m.CodeComments)
+		_, err := fmt.Fprintf(&sb, "- Add these comments\n%s\n", m.CodeComments)
+		if err != nil {
+			return "", err
+		}
+	}
+
+	if len(m.FunctionCalls) > 0 {
+		_, err := fmt.Fprintln(&sb, "Make sure you use these functions in the map logic")
+		if err != nil {
+			return "", err
+		}
+	}
+
+	for _, functionCall := range m.FunctionCalls {
+		if functionCall == nil {
+			return "", errors.New("function call in map is nil")
+		}
+
+		_, err := fmt.Fprintf(&sb, "- %s\n", (*functionCall).GetFunctionName())
 		if err != nil {
 			return "", err
 		}
@@ -70,22 +88,84 @@ func (m Map) GetFunctionCalls() []*FunctionDefinition {
 
 // A Filter unit operation removes, rejects, or reroutes data.
 type Filter struct {
-	InputTypes    []*TypeDefinition
-	OutputTypes   []*TypeDefinition
-	Prompt        string
+	Input         *CollectionVariableDefinition
+	Output        *CollectionVariableDefinition
+	FilterLogic   string
 	FunctionCalls []*FunctionDefinition
+	CodeComments  string
 }
 
-func (f Filter) GetInputTypes() []*TypeDefinition {
-	return f.InputTypes
+func (f Filter) GetInputTypes() []*CollectionVariableDefinition {
+	return []*CollectionVariableDefinition{f.Input}
 }
 
-func (f Filter) GetOutputTypes() []*TypeDefinition {
-	return f.OutputTypes
+func (f Filter) GetOutputTypes() []*CollectionVariableDefinition {
+	return []*CollectionVariableDefinition{f.Output}
 }
 
-func (f Filter) GetPrompt() string {
-	return f.Prompt
+func (f Filter) GetPrompt() (string, error) {
+	var sb strings.Builder
+
+	if f.Input == nil {
+		return "", errors.New("filter's input is nil")
+	}
+	input := *f.Input
+
+	if input.GetTypeDefinition() == nil {
+		return "", errors.New("filter's input type definition is nil")
+	}
+	inputTypeDefinition := *input.GetTypeDefinition()
+
+	if f.Output == nil {
+		return "", errors.New("filter's output is nil")
+	}
+	output := *f.Output
+
+	if input.GetTypeDefinition() == nil {
+		return "", errors.New("filter's output type definition is nil")
+	}
+	outputTypeDefinition := *output.GetTypeDefinition()
+
+	_, err := fmt.Fprintf(&sb, "filter %s of type %s to %s of type %s\n",
+		input.GetVariableName(),
+		inputTypeDefinition.GetTypeName(),
+		output.GetVariableName(),
+		outputTypeDefinition.GetTypeName())
+	if err != nil {
+		return "", err
+	}
+
+	_, err = fmt.Fprintf(&sb, "Do this logic to filter\n%s\n", f.FilterLogic)
+	if err != nil {
+		return "", err
+	}
+
+	if f.CodeComments != "" {
+		_, err := fmt.Fprintf(&sb, "- Add these comments\n%s\n", f.CodeComments)
+		if err != nil {
+			return "", err
+		}
+	}
+
+	if len(f.FunctionCalls) > 0 {
+		_, err := fmt.Fprintln(&sb, "Make sure you use these functions in the filter logic")
+		if err != nil {
+			return "", err
+		}
+	}
+
+	for _, functionCall := range f.FunctionCalls {
+		if functionCall == nil {
+			return "", errors.New("function call in filter is nil")
+		}
+
+		_, err := fmt.Fprintf(&sb, "- %s\n", (*functionCall).GetFunctionName())
+		if err != nil {
+			return "", err
+		}
+	}
+
+	return sb.String(), nil
 }
 
 func (f Filter) GetFunctionCalls() []*FunctionDefinition {
