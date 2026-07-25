@@ -5,6 +5,32 @@ import (
 	"strings"
 )
 
+type BasicVariableDefinition struct {
+	Name           string
+	TypeDefinition *TypeDefinition
+}
+
+func (v *BasicVariableDefinition) GetVariableName() string {
+	return v.Name
+}
+
+func (v *BasicVariableDefinition) GetTypeDefinition() *TypeDefinition {
+	return v.TypeDefinition
+}
+
+type CollectionVariableDefinition struct {
+	Name           string
+	TypeDefinition *CollectionTypeDefinition
+}
+
+func (v *CollectionVariableDefinition) GetVariableName() string {
+	return v.Name
+}
+
+func (v *CollectionVariableDefinition) GetTypeDefinition() *TypeDefinition {
+	return v.TypeDefinition
+}
+
 type PrimitiveTypeDefinition struct {
 	primitiveType string
 }
@@ -51,7 +77,7 @@ func (t *CollectionTypeDefinition) GetDependentTypes() []*TypeDefinition {
 }
 
 type StructTypeField struct {
-	FieldName      string
+	Name           string
 	CodeComment    string
 	TypeDefinition *TypeDefinition
 }
@@ -96,9 +122,12 @@ func (t StructTypeDefinition) GetPrompt() (string, error) {
 	}
 
 	for i, field := range t.Fields {
+		if field.TypeDefinition == nil {
+			return "", fmt.Errorf("%s has a nil type definition for the field \"%s\"", t.TypeName, field.Name)
+		}
 		typeDefinition := *field.TypeDefinition
 
-		_, err = fmt.Fprintf(&sb, "%d. %s:%s", i, field.FieldName, typeDefinition.GetTypeName())
+		_, err = fmt.Fprintf(&sb, "%d. %s:%s", i, field.Name, typeDefinition.GetTypeName())
 		if err != nil {
 			return "", err
 		}

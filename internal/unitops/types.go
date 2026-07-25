@@ -7,10 +7,14 @@ type TypeDefinition interface {
 	IsBuiltin() bool
 	GetTypeName() string
 }
+type VariableDefinition interface {
+	GetVariableName() string
+	GetTypeDefinition() *TypeDefinition
+}
 
 type UnitOperation interface {
-	GetInputTypes() []*TypeDefinition
-	GetOutputTypes() []*TypeDefinition
+	GetInputTypes() []*VariableDefinition
+	GetOutputTypes() []*VariableDefinition
 	GetPrompt() (string, error)
 	GetFunctionCalls() []*FunctionDefinition
 }
@@ -18,6 +22,8 @@ type UnitOperation interface {
 type FunctionDefinition interface {
 	GetFunctionName() string
 	GetPrompt() (string, error)
+	GetInputs() []*VariableDefinition
+	GetOutput() *TypeDefinition
 	GetUnitOperations() []*UnitOperation
 }
 

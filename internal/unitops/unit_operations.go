@@ -1,23 +1,67 @@
 package unitops
 
+import (
+	"errors"
+	"fmt"
+	"strings"
+)
+
 // A Map unit operation converts one value or type into another.
 type Map struct {
-	InputTypes    []*TypeDefinition
-	OutputTypes   []*TypeDefinition
-	Prompt        string
+	Input         *VariableDefinition
+	Output        *VariableDefinition
 	FunctionCalls []*FunctionDefinition
+	CodeComments  string
 }
 
-func (m Map) GetInputTypes() []*TypeDefinition {
-	return m.InputTypes
+func (m Map) GetInputTypes() []*VariableDefinition {
+	return []*VariableDefinition{m.Input}
 }
 
-func (m Map) GetOutputTypes() []*TypeDefinition {
-	return m.OutputTypes
+func (m Map) GetOutputTypes() []*VariableDefinition {
+	return []*VariableDefinition{m.Output}
 }
 
-func (m Map) GetPrompt() string {
-	return m.Prompt
+func (m Map) GetPrompt() (string, error) {
+	var sb strings.Builder
+
+	if m.Input == nil {
+		return "", errors.New("map's input is nil")
+	}
+	input := *m.Input
+
+	if input.GetTypeDefinition() == nil {
+		return "", errors.New("map's input type definition is nil")
+	}
+	inputTypeDefinition := *input.GetTypeDefinition()
+
+	if m.Output == nil {
+		return "", errors.New("map's output is nil")
+	}
+	output := *m.Output
+
+	if input.GetTypeDefinition() == nil {
+		return "", errors.New("map's output type definition is nil")
+	}
+	outputTypeDefinition := *output.GetTypeDefinition()
+
+	_, err := fmt.Fprintf(&sb, "Map %s of type %s to %s of type %s\n",
+		input.GetVariableName(),
+		inputTypeDefinition.GetTypeName(),
+		output.GetVariableName(),
+		outputTypeDefinition.GetTypeName())
+	if err != nil {
+		return "", err
+	}
+
+	if m.CodeComments != "" {
+		_, err := fmt.Fprintf(&sb, "Add these comments %s\n", m.CodeComments)
+		if err != nil {
+			return "", err
+		}
+	}
+
+	return sb.String(), nil
 }
 
 func (m Map) GetFunctionCalls() []*FunctionDefinition {
