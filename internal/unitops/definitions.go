@@ -20,14 +20,14 @@ func (v *BasicVariableDefinition) GetTypeDefinition() *TypeDefinition {
 
 type CollectionVariableDefinition struct {
 	Name           string
-	TypeDefinition *CollectionTypeDefinition
+	TypeDefinition *TypeDefinition
 }
 
 func (v *CollectionVariableDefinition) GetVariableName() string {
 	return v.Name
 }
 
-func (v *CollectionVariableDefinition) GetTypeDefinition() *CollectionTypeDefinition {
+func (v *CollectionVariableDefinition) GetTypeDefinition() *TypeDefinition {
 	return v.TypeDefinition
 }
 
@@ -61,7 +61,7 @@ func (t *CollectionTypeDefinition) GetPrompt() (string, error) {
 }
 
 func (t *CollectionTypeDefinition) GetTypeName() string {
-	return fmt.Sprintf("A %s of %s", t.CollectionType, t.TypeDefinition)
+	return fmt.Sprintf("A %s of %s", t.CollectionType, t.TypeDefinition.GetTypeName())
 }
 
 func (t *CollectionTypeDefinition) IsBuiltin() bool {

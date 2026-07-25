@@ -40,7 +40,7 @@ func (m Map) GetPrompt() (string, error) {
 	}
 	output := *m.Output
 
-	if input.GetTypeDefinition() == nil {
+	if output.GetTypeDefinition() == nil {
 		return "", errors.New("map's output type definition is nil")
 	}
 	outputTypeDefinition := *output.GetTypeDefinition()
@@ -95,12 +95,22 @@ type Filter struct {
 	CodeComments  string
 }
 
-func (f Filter) GetInputTypes() []*CollectionVariableDefinition {
-	return []*CollectionVariableDefinition{f.Input}
+func (f Filter) GetInputTypes() []*VariableDefinition {
+	if f.Input == nil {
+		return []*VariableDefinition{nil}
+	}
+
+	var input VariableDefinition = f.Input
+	return []*VariableDefinition{&input}
 }
 
-func (f Filter) GetOutputTypes() []*CollectionVariableDefinition {
-	return []*CollectionVariableDefinition{f.Output}
+func (f Filter) GetOutputTypes() []*VariableDefinition {
+	if f.Output == nil {
+		return []*VariableDefinition{nil}
+	}
+
+	var output VariableDefinition = f.Output
+	return []*VariableDefinition{&output}
 }
 
 func (f Filter) GetPrompt() (string, error) {
@@ -121,7 +131,7 @@ func (f Filter) GetPrompt() (string, error) {
 	}
 	output := *f.Output
 
-	if input.GetTypeDefinition() == nil {
+	if output.GetTypeDefinition() == nil {
 		return "", errors.New("filter's output type definition is nil")
 	}
 	outputTypeDefinition := *output.GetTypeDefinition()
