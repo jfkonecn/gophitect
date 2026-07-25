@@ -4,6 +4,8 @@ package unitops
 type TypeDefinition interface {
 	GetPrompt() (string, error)
 	GetDependentTypes() []*TypeDefinition
+	IsBuiltin() bool
+	GetTypeName() string
 }
 
 type UnitOperation interface {
