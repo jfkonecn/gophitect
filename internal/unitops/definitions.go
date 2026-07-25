@@ -27,7 +27,7 @@ func (v *CollectionVariableDefinition) GetVariableName() string {
 	return v.Name
 }
 
-func (v *CollectionVariableDefinition) GetTypeDefinition() *TypeDefinition {
+func (v *CollectionVariableDefinition) GetTypeDefinition() *CollectionTypeDefinition {
 	return v.TypeDefinition
 }
 
