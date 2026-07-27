@@ -211,6 +211,68 @@ func TestFilterGetPromptErrors(t *testing.T) {
 	}
 }
 
+func TestSortGetPrompt(t *testing.T) {
+	operation := Sort{
+		Input:         primitiveVariable("users", "[]User"),
+		SortLogic:     "Sort users by LastName, then FirstName.",
+		CodeComments:  "Use a stable sort.",
+		FunctionCalls: []*FunctionDefinition{functionCall("compareUsersByName")},
+	}
+
+	prompt, err := operation.GetPrompt()
+	if err != nil {
+		t.Fatalf("GetPrompt() returned error: %v", err)
+	}
+
+	assertContains(t, prompt, "sort users of type []User")
+	assertContains(t, prompt, "Do this logic to sort\nSort users by LastName, then FirstName.")
+	assertContains(t, prompt, "- Add these comments\nUse a stable sort.")
+	assertContains(t, prompt, "Make sure you use these functions in the sort logic")
+	assertContains(t, prompt, "- compareUsersByName")
+}
+
+func TestSortGetPromptErrors(t *testing.T) {
+	tests := []struct {
+		name      string
+		operation Sort
+		want      string
+	}{
+		{
+			name:      "nil input",
+			operation: Sort{},
+			want:      "sort's input is nil",
+		},
+		{
+			name: "nil input type definition",
+			operation: Sort{
+				Input: variableWithoutType("input"),
+			},
+			want: "sort's input type definition is nil",
+		},
+		{
+			name: "nil function call",
+			operation: Sort{
+				Input:         primitiveVariable("input", "[]string"),
+				FunctionCalls: []*FunctionDefinition{nil},
+			},
+			want: "function call in sort is nil",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			_, err := tt.operation.GetPrompt()
+			if err == nil {
+				t.Fatal("GetPrompt() returned nil error")
+			}
+
+			if err.Error() != tt.want {
+				t.Fatalf("GetPrompt() error = %q, want %q", err.Error(), tt.want)
+			}
+		})
+	}
+}
+
 func TestFilterImplementsUnitOperation(t *testing.T) {
 	var _ UnitOperation = Filter{}
 }

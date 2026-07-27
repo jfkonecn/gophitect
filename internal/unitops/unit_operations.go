@@ -184,22 +184,71 @@ func (f Filter) GetFunctionCalls() []*FunctionDefinition {
 
 // A Sort unit operation orders a collection according to defined rules.
 type Sort struct {
-	InputTypes    []*TypeDefinition
-	OutputTypes   []*TypeDefinition
-	Prompt        string
+	Input         *VariableDefinition
 	FunctionCalls []*FunctionDefinition
+	SortLogic     string
+	CodeComments  string
 }
 
-func (s Sort) GetInputTypes() []*TypeDefinition {
-	return s.InputTypes
+func (s Sort) GetInputTypes() []*VariableDefinition {
+	return []*VariableDefinition{s.Input}
 }
 
-func (s Sort) GetOutputTypes() []*TypeDefinition {
-	return s.OutputTypes
+func (s Sort) GetOutputTypes() []*VariableDefinition {
+	return nil
 }
 
-func (s Sort) GetPrompt() string {
-	return s.Prompt
+func (s Sort) GetPrompt() (string, error) {
+	var sb strings.Builder
+
+	if s.Input == nil {
+		return "", errors.New("sort's input is nil")
+	}
+	input := *s.Input
+
+	if input.GetTypeDefinition() == nil {
+		return "", errors.New("sort's input type definition is nil")
+	}
+	inputTypeDefinition := *input.GetTypeDefinition()
+
+	_, err := fmt.Fprintf(&sb, "sort %s of type %s\n",
+		input.GetVariableName(),
+		inputTypeDefinition.GetTypeName())
+	if err != nil {
+		return "", err
+	}
+
+	_, err = fmt.Fprintf(&sb, "Do this logic to sort\n%s\n", s.SortLogic)
+	if err != nil {
+		return "", err
+	}
+
+	if s.CodeComments != "" {
+		_, err := fmt.Fprintf(&sb, "- Add these comments\n%s\n", s.CodeComments)
+		if err != nil {
+			return "", err
+		}
+	}
+
+	if len(s.FunctionCalls) > 0 {
+		_, err := fmt.Fprintln(&sb, "Make sure you use these functions in the sort logic")
+		if err != nil {
+			return "", err
+		}
+	}
+
+	for _, functionCall := range s.FunctionCalls {
+		if functionCall == nil {
+			return "", errors.New("function call in sort is nil")
+		}
+
+		_, err := fmt.Fprintf(&sb, "- %s\n", (*functionCall).GetFunctionName())
+		if err != nil {
+			return "", err
+		}
+	}
+
+	return sb.String(), nil
 }
 
 func (s Sort) GetFunctionCalls() []*FunctionDefinition {
