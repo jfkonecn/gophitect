@@ -467,22 +467,98 @@ func (v Validate) GetFunctionCalls() []*FunctionDefinition {
 
 // An Authenticate unit operation determines the identity initiating a flow.
 type Authenticate struct {
-	InputTypes    []*TypeDefinition
-	OutputTypes   []*TypeDefinition
-	Prompt        string
+	Input         *VariableDefinition
+	SuccessOutput *VariableDefinition
+	FailureOutput *VariableDefinition
 	FunctionCalls []*FunctionDefinition
 }
 
-func (a Authenticate) GetInputTypes() []*TypeDefinition {
-	return a.InputTypes
+func (a Authenticate) GetInputTypes() []*VariableDefinition {
+	return []*VariableDefinition{a.Input}
 }
 
-func (a Authenticate) GetOutputTypes() []*TypeDefinition {
-	return a.OutputTypes
+func (a Authenticate) GetOutputTypes() []*VariableDefinition {
+	return []*VariableDefinition{a.SuccessOutput, a.FailureOutput}
 }
 
-func (a Authenticate) GetPrompt() string {
-	return a.Prompt
+func (a Authenticate) GetPrompt() (string, error) {
+	var sb strings.Builder
+
+	if a.Input == nil {
+		return "", errors.New("authenticate's input is nil")
+	}
+	input := *a.Input
+
+	if input.GetTypeDefinition() == nil {
+		return "", errors.New("authenticate's input type definition is nil")
+	}
+	inputTypeDefinition := *input.GetTypeDefinition()
+
+	if a.SuccessOutput == nil {
+		return "", errors.New("authenticate's success output is nil")
+	}
+	successOutput := *a.SuccessOutput
+
+	if successOutput.GetTypeDefinition() == nil {
+		return "", errors.New("authenticate's success output type definition is nil")
+	}
+	successOutputTypeDefinition := *successOutput.GetTypeDefinition()
+
+	if a.FailureOutput == nil {
+		return "", errors.New("authenticate's failure output is nil")
+	}
+	failureOutput := *a.FailureOutput
+
+	if failureOutput.GetTypeDefinition() == nil {
+		return "", errors.New("authenticate's failure output type definition is nil")
+	}
+	failureOutputTypeDefinition := *failureOutput.GetTypeDefinition()
+
+	_, err := fmt.Fprintf(&sb, "authenticate %s of type %s\n",
+		input.GetVariableName(),
+		inputTypeDefinition.GetTypeName())
+	if err != nil {
+		return "", err
+	}
+
+	_, err = fmt.Fprintln(&sb, "Route the input based on whether authentication succeeds or fails.")
+	if err != nil {
+		return "", err
+	}
+
+	_, err = fmt.Fprintf(&sb, "- On success, route to %s of type %s\n",
+		successOutput.GetVariableName(),
+		successOutputTypeDefinition.GetTypeName())
+	if err != nil {
+		return "", err
+	}
+
+	_, err = fmt.Fprintf(&sb, "- On failure, route to %s of type %s\n",
+		failureOutput.GetVariableName(),
+		failureOutputTypeDefinition.GetTypeName())
+	if err != nil {
+		return "", err
+	}
+
+	if len(a.FunctionCalls) > 0 {
+		_, err := fmt.Fprintln(&sb, "Make sure you use these functions in the authenticate logic")
+		if err != nil {
+			return "", err
+		}
+	}
+
+	for _, functionCall := range a.FunctionCalls {
+		if functionCall == nil {
+			return "", errors.New("function call in authenticate is nil")
+		}
+
+		_, err := fmt.Fprintf(&sb, "- %s\n", (*functionCall).GetFunctionName())
+		if err != nil {
+			return "", err
+		}
+	}
+
+	return sb.String(), nil
 }
 
 func (a Authenticate) GetFunctionCalls() []*FunctionDefinition {

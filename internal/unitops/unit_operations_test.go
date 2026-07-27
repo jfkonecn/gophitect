@@ -506,6 +506,110 @@ func TestValidateGetPromptErrors(t *testing.T) {
 	}
 }
 
+func TestAuthenticateGetPrompt(t *testing.T) {
+	operation := Authenticate{
+		Input:         primitiveVariable("credentials", "Credentials"),
+		SuccessOutput: primitiveVariable("authenticatedUser", "AuthenticatedUser"),
+		FailureOutput: primitiveVariable("authFailure", "AuthenticationError"),
+		FunctionCalls: []*FunctionDefinition{functionCall("authenticateCredentials")},
+	}
+
+	prompt, err := operation.GetPrompt()
+	if err != nil {
+		t.Fatalf("GetPrompt() returned error: %v", err)
+	}
+
+	assertContains(t, prompt, "authenticate credentials of type Credentials")
+	assertContains(t, prompt, "Route the input based on whether authentication succeeds or fails.")
+	assertContains(t, prompt, "- On success, route to authenticatedUser of type AuthenticatedUser")
+	assertContains(t, prompt, "- On failure, route to authFailure of type AuthenticationError")
+	assertContains(t, prompt, "Make sure you use these functions in the authenticate logic")
+	assertContains(t, prompt, "- authenticateCredentials")
+}
+
+func TestAuthenticateGetPromptErrors(t *testing.T) {
+	tests := []struct {
+		name      string
+		operation Authenticate
+		want      string
+	}{
+		{
+			name: "nil input",
+			operation: Authenticate{
+				SuccessOutput: primitiveVariable("success", "string"),
+				FailureOutput: primitiveVariable("failure", "error"),
+			},
+			want: "authenticate's input is nil",
+		},
+		{
+			name: "nil input type definition",
+			operation: Authenticate{
+				Input:         variableWithoutType("input"),
+				SuccessOutput: primitiveVariable("success", "string"),
+				FailureOutput: primitiveVariable("failure", "error"),
+			},
+			want: "authenticate's input type definition is nil",
+		},
+		{
+			name: "nil success output",
+			operation: Authenticate{
+				Input:         primitiveVariable("input", "string"),
+				FailureOutput: primitiveVariable("failure", "error"),
+			},
+			want: "authenticate's success output is nil",
+		},
+		{
+			name: "nil success output type definition",
+			operation: Authenticate{
+				Input:         primitiveVariable("input", "string"),
+				SuccessOutput: variableWithoutType("success"),
+				FailureOutput: primitiveVariable("failure", "error"),
+			},
+			want: "authenticate's success output type definition is nil",
+		},
+		{
+			name: "nil failure output",
+			operation: Authenticate{
+				Input:         primitiveVariable("input", "string"),
+				SuccessOutput: primitiveVariable("success", "string"),
+			},
+			want: "authenticate's failure output is nil",
+		},
+		{
+			name: "nil failure output type definition",
+			operation: Authenticate{
+				Input:         primitiveVariable("input", "string"),
+				SuccessOutput: primitiveVariable("success", "string"),
+				FailureOutput: variableWithoutType("failure"),
+			},
+			want: "authenticate's failure output type definition is nil",
+		},
+		{
+			name: "nil function call",
+			operation: Authenticate{
+				Input:         primitiveVariable("input", "string"),
+				SuccessOutput: primitiveVariable("success", "string"),
+				FailureOutput: primitiveVariable("failure", "error"),
+				FunctionCalls: []*FunctionDefinition{nil},
+			},
+			want: "function call in authenticate is nil",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			_, err := tt.operation.GetPrompt()
+			if err == nil {
+				t.Fatal("GetPrompt() returned nil error")
+			}
+
+			if err.Error() != tt.want {
+				t.Fatalf("GetPrompt() error = %q, want %q", err.Error(), tt.want)
+			}
+		})
+	}
+}
+
 func TestFilterImplementsUnitOperation(t *testing.T) {
 	var _ UnitOperation = Filter{}
 }
@@ -516,6 +620,10 @@ func TestDistributionImplementsUnitOperation(t *testing.T) {
 
 func TestValidateImplementsUnitOperation(t *testing.T) {
 	var _ UnitOperation = Validate{}
+}
+
+func TestAuthenticateImplementsUnitOperation(t *testing.T) {
+	var _ UnitOperation = Authenticate{}
 }
 
 func variableWithoutType(name string) *VariableDefinition {
