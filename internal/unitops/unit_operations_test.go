@@ -273,8 +273,141 @@ func TestSortGetPromptErrors(t *testing.T) {
 	}
 }
 
+func TestDistributionGetPrompt(t *testing.T) {
+	operation := Distribution{
+		Input: primitiveVariable("payment", "Payment"),
+		Conditions: []DistributionCondition{
+			{
+				Condition:     "payment.Amount > 1000",
+				Output:        primitiveVariable("manualReviewQueue", "ReviewQueueItem"),
+				FunctionCalls: []*FunctionDefinition{functionCall("requiresManualReview")},
+			},
+			{
+				Condition: "payment.Amount <= 1000",
+				Output:    primitiveVariable("autoApprovalQueue", "ApprovalQueueItem"),
+			},
+		},
+	}
+
+	prompt, err := operation.GetPrompt()
+	if err != nil {
+		t.Fatalf("GetPrompt() returned error: %v", err)
+	}
+
+	assertContains(t, prompt, "distribute payment of type Payment based on these conditions")
+	assertContains(t, prompt, "Evaluate each condition and route the input to the matching output.")
+	assertContains(t, prompt, "1. When payment.Amount > 1000")
+	assertContains(t, prompt, "- Route to manualReviewQueue of type ReviewQueueItem")
+	assertContains(t, prompt, "- Make sure you use these functions for this condition")
+	assertContains(t, prompt, "  - requiresManualReview")
+	assertContains(t, prompt, "2. When payment.Amount <= 1000")
+	assertContains(t, prompt, "- Route to autoApprovalQueue of type ApprovalQueueItem")
+}
+
+func TestDistributionGetPromptErrors(t *testing.T) {
+	tests := []struct {
+		name      string
+		operation Distribution
+		want      string
+	}{
+		{
+			name:      "nil input",
+			operation: Distribution{},
+			want:      "distribution's input is nil",
+		},
+		{
+			name: "nil input type definition",
+			operation: Distribution{
+				Input: variableWithoutType("input"),
+				Conditions: []DistributionCondition{
+					{
+						Condition: "input.Valid",
+						Output:    primitiveVariable("output", "string"),
+					},
+				},
+			},
+			want: "distribution's input type definition is nil",
+		},
+		{
+			name: "empty conditions",
+			operation: Distribution{
+				Input: primitiveVariable("input", "string"),
+			},
+			want: "distribution's conditions are empty",
+		},
+		{
+			name: "empty condition",
+			operation: Distribution{
+				Input: primitiveVariable("input", "string"),
+				Conditions: []DistributionCondition{
+					{
+						Output: primitiveVariable("output", "string"),
+					},
+				},
+			},
+			want: "distribution condition is empty",
+		},
+		{
+			name: "nil output",
+			operation: Distribution{
+				Input: primitiveVariable("input", "string"),
+				Conditions: []DistributionCondition{
+					{
+						Condition: "input != \"\"",
+					},
+				},
+			},
+			want: "distribution condition's output is nil",
+		},
+		{
+			name: "nil output type definition",
+			operation: Distribution{
+				Input: primitiveVariable("input", "string"),
+				Conditions: []DistributionCondition{
+					{
+						Condition: "input != \"\"",
+						Output:    variableWithoutType("output"),
+					},
+				},
+			},
+			want: "distribution condition's output type definition is nil",
+		},
+		{
+			name: "nil function call",
+			operation: Distribution{
+				Input: primitiveVariable("input", "string"),
+				Conditions: []DistributionCondition{
+					{
+						Condition:     "input != \"\"",
+						Output:        primitiveVariable("output", "string"),
+						FunctionCalls: []*FunctionDefinition{nil},
+					},
+				},
+			},
+			want: "function call in distribution condition is nil",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			_, err := tt.operation.GetPrompt()
+			if err == nil {
+				t.Fatal("GetPrompt() returned nil error")
+			}
+
+			if err.Error() != tt.want {
+				t.Fatalf("GetPrompt() error = %q, want %q", err.Error(), tt.want)
+			}
+		})
+	}
+}
+
 func TestFilterImplementsUnitOperation(t *testing.T) {
 	var _ UnitOperation = Filter{}
+}
+
+func TestDistributionImplementsUnitOperation(t *testing.T) {
+	var _ UnitOperation = Distribution{}
 }
 
 func variableWithoutType(name string) *VariableDefinition {

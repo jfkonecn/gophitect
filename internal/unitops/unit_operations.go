@@ -255,28 +255,114 @@ func (s Sort) GetFunctionCalls() []*FunctionDefinition {
 	return s.FunctionCalls
 }
 
-// A Distribution unit operation chooses where data goes next, such as branching.
-type Distribution struct {
-	InputTypes    []*TypeDefinition
-	OutputTypes   []*TypeDefinition
-	Prompt        string
+type DistributionCondition struct {
+	Condition     string
+	Output        *VariableDefinition
 	FunctionCalls []*FunctionDefinition
 }
 
-func (d Distribution) GetInputTypes() []*TypeDefinition {
-	return d.InputTypes
+// A Distribution unit operation chooses where data goes next, such as branching.
+type Distribution struct {
+	Input      *VariableDefinition
+	Conditions []DistributionCondition
 }
 
-func (d Distribution) GetOutputTypes() []*TypeDefinition {
-	return d.OutputTypes
+func (d Distribution) GetInputTypes() []*VariableDefinition {
+	return []*VariableDefinition{d.Input}
 }
 
-func (d Distribution) GetPrompt() string {
-	return d.Prompt
+func (d Distribution) GetOutputTypes() []*VariableDefinition {
+	var outputs []*VariableDefinition
+	for _, c := range d.Conditions {
+		outputs = append(outputs, c.Output)
+	}
+	return outputs
+}
+
+func (d Distribution) GetPrompt() (string, error) {
+	var sb strings.Builder
+
+	if d.Input == nil {
+		return "", errors.New("distribution's input is nil")
+	}
+	input := *d.Input
+
+	if input.GetTypeDefinition() == nil {
+		return "", errors.New("distribution's input type definition is nil")
+	}
+	inputTypeDefinition := *input.GetTypeDefinition()
+
+	if len(d.Conditions) == 0 {
+		return "", errors.New("distribution's conditions are empty")
+	}
+
+	_, err := fmt.Fprintf(&sb, "distribute %s of type %s based on these conditions\n",
+		input.GetVariableName(),
+		inputTypeDefinition.GetTypeName())
+	if err != nil {
+		return "", err
+	}
+
+	_, err = fmt.Fprintln(&sb, "Evaluate each condition and route the input to the matching output.")
+	if err != nil {
+		return "", err
+	}
+
+	for i, condition := range d.Conditions {
+		if condition.Condition == "" {
+			return "", errors.New("distribution condition is empty")
+		}
+
+		if condition.Output == nil {
+			return "", errors.New("distribution condition's output is nil")
+		}
+		output := *condition.Output
+
+		if output.GetTypeDefinition() == nil {
+			return "", errors.New("distribution condition's output type definition is nil")
+		}
+		outputTypeDefinition := *output.GetTypeDefinition()
+
+		_, err := fmt.Fprintf(&sb, "%d. When %s\n", i+1, condition.Condition)
+		if err != nil {
+			return "", err
+		}
+
+		_, err = fmt.Fprintf(&sb, "- Route to %s of type %s\n",
+			output.GetVariableName(),
+			outputTypeDefinition.GetTypeName())
+		if err != nil {
+			return "", err
+		}
+
+		if len(condition.FunctionCalls) > 0 {
+			_, err := fmt.Fprintln(&sb, "- Make sure you use these functions for this condition")
+			if err != nil {
+				return "", err
+			}
+		}
+
+		for _, functionCall := range condition.FunctionCalls {
+			if functionCall == nil {
+				return "", errors.New("function call in distribution condition is nil")
+			}
+
+			_, err := fmt.Fprintf(&sb, "  - %s\n", (*functionCall).GetFunctionName())
+			if err != nil {
+				return "", err
+			}
+		}
+	}
+
+	return sb.String(), nil
 }
 
 func (d Distribution) GetFunctionCalls() []*FunctionDefinition {
-	return d.FunctionCalls
+	var functionCalls []*FunctionDefinition
+	for _, c := range d.Conditions {
+		functionCalls = append(functionCalls, c.FunctionCalls...)
+	}
+	return functionCalls
 }
 
 // A Validate unit operation checks data integrity.
