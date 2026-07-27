@@ -367,22 +367,98 @@ func (d Distribution) GetFunctionCalls() []*FunctionDefinition {
 
 // A Validate unit operation checks data integrity.
 type Validate struct {
-	InputTypes    []*TypeDefinition
-	OutputTypes   []*TypeDefinition
-	Prompt        string
+	Input         *VariableDefinition
+	SuccessOutput *VariableDefinition
+	FailureOutput *VariableDefinition
 	FunctionCalls []*FunctionDefinition
 }
 
-func (v Validate) GetInputTypes() []*TypeDefinition {
-	return v.InputTypes
+func (v Validate) GetInputTypes() []*VariableDefinition {
+	return []*VariableDefinition{v.Input}
 }
 
-func (v Validate) GetOutputTypes() []*TypeDefinition {
-	return v.OutputTypes
+func (v Validate) GetOutputTypes() []*VariableDefinition {
+	return []*VariableDefinition{v.SuccessOutput, v.FailureOutput}
 }
 
-func (v Validate) GetPrompt() string {
-	return v.Prompt
+func (v Validate) GetPrompt() (string, error) {
+	var sb strings.Builder
+
+	if v.Input == nil {
+		return "", errors.New("validate's input is nil")
+	}
+	input := *v.Input
+
+	if input.GetTypeDefinition() == nil {
+		return "", errors.New("validate's input type definition is nil")
+	}
+	inputTypeDefinition := *input.GetTypeDefinition()
+
+	if v.SuccessOutput == nil {
+		return "", errors.New("validate's success output is nil")
+	}
+	successOutput := *v.SuccessOutput
+
+	if successOutput.GetTypeDefinition() == nil {
+		return "", errors.New("validate's success output type definition is nil")
+	}
+	successOutputTypeDefinition := *successOutput.GetTypeDefinition()
+
+	if v.FailureOutput == nil {
+		return "", errors.New("validate's failure output is nil")
+	}
+	failureOutput := *v.FailureOutput
+
+	if failureOutput.GetTypeDefinition() == nil {
+		return "", errors.New("validate's failure output type definition is nil")
+	}
+	failureOutputTypeDefinition := *failureOutput.GetTypeDefinition()
+
+	_, err := fmt.Fprintf(&sb, "validate %s of type %s\n",
+		input.GetVariableName(),
+		inputTypeDefinition.GetTypeName())
+	if err != nil {
+		return "", err
+	}
+
+	_, err = fmt.Fprintln(&sb, "Route the input based on whether validation succeeds or fails.")
+	if err != nil {
+		return "", err
+	}
+
+	_, err = fmt.Fprintf(&sb, "- On success, route to %s of type %s\n",
+		successOutput.GetVariableName(),
+		successOutputTypeDefinition.GetTypeName())
+	if err != nil {
+		return "", err
+	}
+
+	_, err = fmt.Fprintf(&sb, "- On failure, route to %s of type %s\n",
+		failureOutput.GetVariableName(),
+		failureOutputTypeDefinition.GetTypeName())
+	if err != nil {
+		return "", err
+	}
+
+	if len(v.FunctionCalls) > 0 {
+		_, err := fmt.Fprintln(&sb, "Make sure you use these functions in the validate logic")
+		if err != nil {
+			return "", err
+		}
+	}
+
+	for _, functionCall := range v.FunctionCalls {
+		if functionCall == nil {
+			return "", errors.New("function call in validate is nil")
+		}
+
+		_, err := fmt.Fprintf(&sb, "- %s\n", (*functionCall).GetFunctionName())
+		if err != nil {
+			return "", err
+		}
+	}
+
+	return sb.String(), nil
 }
 
 func (v Validate) GetFunctionCalls() []*FunctionDefinition {
