@@ -2,6 +2,7 @@ package unitops
 
 import (
 	"fmt"
+	"slices"
 	"strings"
 )
 
@@ -162,7 +163,7 @@ func (t StructTypeDefinition) GetDependentTypes() []*TypeDefinition {
 
 type BasicFunctionDefinition struct {
 	FunctionName   string
-	Prompt         string
+	CodeComments   string
 	UnitOperations []*UnitOperation
 }
 
@@ -170,12 +171,123 @@ func (f BasicFunctionDefinition) GetFunctionName() string {
 	return f.FunctionName
 }
 
-func (f BasicFunctionDefinition) GetPrompt() string {
-	return f.Prompt
+func (f BasicFunctionDefinition) GetPrompt() (string, error) {
+	var sb strings.Builder
+
+	if f.FunctionName == "" {
+		return "", fmt.Errorf("function's name is empty")
+	}
+
+	_, err := fmt.Fprintf(&sb, "implement function %s\n", f.FunctionName)
+	if err != nil {
+		return "", err
+	}
+
+	if f.CodeComments != "" {
+		_, err := fmt.Fprintf(&sb, "- Add these comments\n%s\n", f.CodeComments)
+		if err != nil {
+			return "", err
+		}
+	}
+
+	if len(f.UnitOperations) > 0 {
+		_, err := fmt.Fprintln(&sb, "Use these unit operations in order")
+		if err != nil {
+			return "", err
+		}
+	}
+
+	for i, unitOperation := range f.UnitOperations {
+		if unitOperation == nil {
+			return "", fmt.Errorf("unit operation in function is nil")
+		}
+
+		unitOperationPrompt, err := (*unitOperation).GetPrompt()
+		if err != nil {
+			return "", err
+		}
+
+		_, err = fmt.Fprintf(&sb, "%d. %s", i+1, unitOperationPrompt)
+		if err != nil {
+			return "", err
+		}
+	}
+
+	return sb.String(), nil
+}
+
+func (f BasicFunctionDefinition) GetInputs() []*VariableDefinition {
+	var inputs []*VariableDefinition
+	seenInputs := map[string]bool{}
+	produced := map[string]bool{}
+
+	for _, unitOperation := range f.UnitOperations {
+		if unitOperation == nil {
+			continue
+		}
+
+		for _, input := range (*unitOperation).GetInputTypes() {
+			if input == nil {
+				continue
+			}
+
+			key := variableDefinitionKey(input)
+			if produced[key] || seenInputs[key] {
+				continue
+			}
+
+			inputs = append(inputs, input)
+			seenInputs[key] = true
+		}
+
+		for _, output := range (*unitOperation).GetOutputTypes() {
+			if output == nil {
+				continue
+			}
+
+			produced[variableDefinitionKey(output)] = true
+		}
+	}
+
+	return inputs
+}
+
+func (f BasicFunctionDefinition) GetOutput() *TypeDefinition {
+	for _, unitOperation := range slices.Backward(f.UnitOperations) {
+
+		if unitOperation == nil {
+			continue
+		}
+
+		outputs := (*unitOperation).GetOutputTypes()
+		for _, output := range slices.Backward(outputs) {
+			if output == nil {
+				continue
+			}
+
+			return (*output).GetTypeDefinition()
+		}
+	}
+
+	return nil
 }
 
 func (f BasicFunctionDefinition) GetUnitOperations() []*UnitOperation {
 	return f.UnitOperations
+}
+
+func variableDefinitionKey(variableDefinition *VariableDefinition) string {
+	if variableDefinition == nil {
+		return ""
+	}
+
+	variable := *variableDefinition
+	if variable.GetTypeDefinition() == nil {
+		return variable.GetVariableName()
+	}
+
+	typeDefinition := *variable.GetTypeDefinition()
+	return fmt.Sprintf("%s:%s", variable.GetVariableName(), typeDefinition.GetTypeName())
 }
 
 type BasicTestCase struct {
