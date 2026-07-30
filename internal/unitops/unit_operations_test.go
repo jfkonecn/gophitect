@@ -275,11 +275,13 @@ func TestSortGetPromptErrors(t *testing.T) {
 
 func TestDistributionGetPrompt(t *testing.T) {
 	operation := Distribution{
-		Input: primitiveVariable("payment", "Payment"),
+		Input:        primitiveVariable("payment", "Payment"),
+		CodeComments: "Return after the first matching condition.",
 		Conditions: []DistributionCondition{
 			{
 				Condition:     "payment.Amount > 1000",
 				Output:        primitiveVariable("manualReviewQueue", "ReviewQueueItem"),
+				CodeComments:  "Keep the original payment ID.",
 				FunctionCalls: []*FunctionDefinition{functionCall("requiresManualReview")},
 			},
 			{
@@ -296,8 +298,10 @@ func TestDistributionGetPrompt(t *testing.T) {
 
 	assertContains(t, prompt, "distribute payment of type Payment based on these conditions")
 	assertContains(t, prompt, "Evaluate each condition and route the input to the matching output.")
+	assertContains(t, prompt, "- Add these comments\nReturn after the first matching condition.")
 	assertContains(t, prompt, "1. When payment.Amount > 1000")
 	assertContains(t, prompt, "- Route to manualReviewQueue of type ReviewQueueItem")
+	assertContains(t, prompt, "- Add these comments for this condition\nKeep the original payment ID.")
 	assertContains(t, prompt, "- Make sure you use these functions for this condition")
 	assertContains(t, prompt, "  - requiresManualReview")
 	assertContains(t, prompt, "2. When payment.Amount <= 1000")
@@ -407,6 +411,7 @@ func TestValidateGetPrompt(t *testing.T) {
 		Input:         primitiveVariable("user", "User"),
 		SuccessOutput: primitiveVariable("validUser", "User"),
 		FailureOutput: primitiveVariable("validationError", "ValidationError"),
+		CodeComments:  "Include every failed field in the failure output.",
 		FunctionCalls: []*FunctionDefinition{functionCall("validateUser")},
 	}
 
@@ -419,6 +424,7 @@ func TestValidateGetPrompt(t *testing.T) {
 	assertContains(t, prompt, "Route the input based on whether validation succeeds or fails.")
 	assertContains(t, prompt, "- On success, route to validUser of type User")
 	assertContains(t, prompt, "- On failure, route to validationError of type ValidationError")
+	assertContains(t, prompt, "- Add these comments\nInclude every failed field in the failure output.")
 	assertContains(t, prompt, "Make sure you use these functions in the validate logic")
 	assertContains(t, prompt, "- validateUser")
 }
@@ -511,6 +517,7 @@ func TestAuthenticateGetPrompt(t *testing.T) {
 		Input:         primitiveVariable("credentials", "Credentials"),
 		SuccessOutput: primitiveVariable("authenticatedUser", "AuthenticatedUser"),
 		FailureOutput: primitiveVariable("authFailure", "AuthenticationError"),
+		CodeComments:  "Do not log raw credentials.",
 		FunctionCalls: []*FunctionDefinition{functionCall("authenticateCredentials")},
 	}
 
@@ -523,6 +530,7 @@ func TestAuthenticateGetPrompt(t *testing.T) {
 	assertContains(t, prompt, "Route the input based on whether authentication succeeds or fails.")
 	assertContains(t, prompt, "- On success, route to authenticatedUser of type AuthenticatedUser")
 	assertContains(t, prompt, "- On failure, route to authFailure of type AuthenticationError")
+	assertContains(t, prompt, "- Add these comments\nDo not log raw credentials.")
 	assertContains(t, prompt, "Make sure you use these functions in the authenticate logic")
 	assertContains(t, prompt, "- authenticateCredentials")
 }
@@ -610,6 +618,382 @@ func TestAuthenticateGetPromptErrors(t *testing.T) {
 	}
 }
 
+func TestAuthorizeGetPrompt(t *testing.T) {
+	operation := Authorize{
+		Input:               primitiveVariable("request", "AuthorizedRequest"),
+		AuthorizeConditions: "Allow only when request.UserID matches resource owner or user has admin role.",
+		SuccessOutput:       primitiveVariable("authorizedRequest", "AuthorizedRequest"),
+		FailureOutput:       primitiveVariable("authorizationFailure", "AuthorizationError"),
+		CodeComments:        "Audit denied authorization attempts.",
+		FunctionCalls:       []*FunctionDefinition{functionCall("authorizeRequest")},
+	}
+
+	prompt, err := operation.GetPrompt()
+	if err != nil {
+		t.Fatalf("GetPrompt() returned error: %v", err)
+	}
+
+	assertContains(t, prompt, "authorize request of type AuthorizedRequest")
+	assertContains(t, prompt, "Use these conditions to authorize\nAllow only when request.UserID matches resource owner or user has admin role.")
+	assertContains(t, prompt, "Route the input based on whether authorization succeeds or fails.")
+	assertContains(t, prompt, "- On success, route to authorizedRequest of type AuthorizedRequest")
+	assertContains(t, prompt, "- On failure, route to authorizationFailure of type AuthorizationError")
+	assertContains(t, prompt, "- Add these comments\nAudit denied authorization attempts.")
+	assertContains(t, prompt, "Make sure you use these functions in the authorize logic")
+	assertContains(t, prompt, "- authorizeRequest")
+}
+
+func TestAuthorizeGetPromptErrors(t *testing.T) {
+	tests := []struct {
+		name      string
+		operation Authorize
+		want      string
+	}{
+		{
+			name: "nil input",
+			operation: Authorize{
+				AuthorizeConditions: "input.UserID != \"\"",
+				SuccessOutput:       primitiveVariable("success", "string"),
+				FailureOutput:       primitiveVariable("failure", "error"),
+			},
+			want: "authorize's input is nil",
+		},
+		{
+			name: "nil input type definition",
+			operation: Authorize{
+				Input:               variableWithoutType("input"),
+				AuthorizeConditions: "input.UserID != \"\"",
+				SuccessOutput:       primitiveVariable("success", "string"),
+				FailureOutput:       primitiveVariable("failure", "error"),
+			},
+			want: "authorize's input type definition is nil",
+		},
+		{
+			name: "empty conditions",
+			operation: Authorize{
+				Input:         primitiveVariable("input", "string"),
+				SuccessOutput: primitiveVariable("success", "string"),
+				FailureOutput: primitiveVariable("failure", "error"),
+			},
+			want: "authorize's conditions are empty",
+		},
+		{
+			name: "nil success output",
+			operation: Authorize{
+				Input:               primitiveVariable("input", "string"),
+				AuthorizeConditions: "input.UserID != \"\"",
+				FailureOutput:       primitiveVariable("failure", "error"),
+			},
+			want: "authorize's success output is nil",
+		},
+		{
+			name: "nil success output type definition",
+			operation: Authorize{
+				Input:               primitiveVariable("input", "string"),
+				AuthorizeConditions: "input.UserID != \"\"",
+				SuccessOutput:       variableWithoutType("success"),
+				FailureOutput:       primitiveVariable("failure", "error"),
+			},
+			want: "authorize's success output type definition is nil",
+		},
+		{
+			name: "nil failure output",
+			operation: Authorize{
+				Input:               primitiveVariable("input", "string"),
+				AuthorizeConditions: "input.UserID != \"\"",
+				SuccessOutput:       primitiveVariable("success", "string"),
+			},
+			want: "authorize's failure output is nil",
+		},
+		{
+			name: "nil failure output type definition",
+			operation: Authorize{
+				Input:               primitiveVariable("input", "string"),
+				AuthorizeConditions: "input.UserID != \"\"",
+				SuccessOutput:       primitiveVariable("success", "string"),
+				FailureOutput:       variableWithoutType("failure"),
+			},
+			want: "authorize's failure output type definition is nil",
+		},
+		{
+			name: "nil function call",
+			operation: Authorize{
+				Input:               primitiveVariable("input", "string"),
+				AuthorizeConditions: "input.UserID != \"\"",
+				SuccessOutput:       primitiveVariable("success", "string"),
+				FailureOutput:       primitiveVariable("failure", "error"),
+				FunctionCalls:       []*FunctionDefinition{nil},
+			},
+			want: "function call in authorize is nil",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			_, err := tt.operation.GetPrompt()
+			if err == nil {
+				t.Fatal("GetPrompt() returned nil error")
+			}
+
+			if err.Error() != tt.want {
+				t.Fatalf("GetPrompt() error = %q, want %q", err.Error(), tt.want)
+			}
+		})
+	}
+}
+
+func TestGlobalStateReadGetPrompt(t *testing.T) {
+	operation := GlobalStateRead{
+		Output:        primitiveVariable("session", "Session"),
+		CodeComments:  "Read from the request-scoped session store.",
+		FunctionCalls: []*FunctionDefinition{functionCall("readSession")},
+	}
+
+	prompt, err := operation.GetPrompt()
+	if err != nil {
+		t.Fatalf("GetPrompt() returned error: %v", err)
+	}
+
+	assertContains(t, prompt, "read global state into session of type Session")
+	assertContains(t, prompt, "- Add these comments\nRead from the request-scoped session store.")
+	assertContains(t, prompt, "Make sure you use these functions in the global state read logic")
+	assertContains(t, prompt, "- readSession")
+}
+
+func TestGlobalStateReadGetPromptErrors(t *testing.T) {
+	tests := []struct {
+		name      string
+		operation GlobalStateRead
+		want      string
+	}{
+		{
+			name:      "nil output",
+			operation: GlobalStateRead{},
+			want:      "global state read's output is nil",
+		},
+		{
+			name: "nil output type definition",
+			operation: GlobalStateRead{
+				Output: variableWithoutType("output"),
+			},
+			want: "global state read's output type definition is nil",
+		},
+		{
+			name: "nil function call",
+			operation: GlobalStateRead{
+				Output:        primitiveVariable("output", "string"),
+				FunctionCalls: []*FunctionDefinition{nil},
+			},
+			want: "function call in global state read is nil",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			_, err := tt.operation.GetPrompt()
+			if err == nil {
+				t.Fatal("GetPrompt() returned nil error")
+			}
+
+			if err.Error() != tt.want {
+				t.Fatalf("GetPrompt() error = %q, want %q", err.Error(), tt.want)
+			}
+		})
+	}
+}
+
+func TestGlobalStateWriteGetPrompt(t *testing.T) {
+	operation := GlobalStateWrite{
+		Input:         primitiveVariable("session", "Session"),
+		CodeComments:  "Overwrite the current request session.",
+		FunctionCalls: []*FunctionDefinition{functionCall("writeSession")},
+	}
+
+	prompt, err := operation.GetPrompt()
+	if err != nil {
+		t.Fatalf("GetPrompt() returned error: %v", err)
+	}
+
+	assertContains(t, prompt, "write session of type Session to global state")
+	assertContains(t, prompt, "- Add these comments\nOverwrite the current request session.")
+	assertContains(t, prompt, "Make sure you use these functions in the global state write logic")
+	assertContains(t, prompt, "- writeSession")
+}
+
+func TestGlobalStateWriteGetPromptErrors(t *testing.T) {
+	tests := []struct {
+		name      string
+		operation GlobalStateWrite
+		want      string
+	}{
+		{
+			name:      "nil input",
+			operation: GlobalStateWrite{},
+			want:      "global state write's input is nil",
+		},
+		{
+			name: "nil input type definition",
+			operation: GlobalStateWrite{
+				Input: variableWithoutType("input"),
+			},
+			want: "global state write's input type definition is nil",
+		},
+		{
+			name: "nil function call",
+			operation: GlobalStateWrite{
+				Input:         primitiveVariable("input", "string"),
+				FunctionCalls: []*FunctionDefinition{nil},
+			},
+			want: "function call in global state write is nil",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			_, err := tt.operation.GetPrompt()
+			if err == nil {
+				t.Fatal("GetPrompt() returned nil error")
+			}
+
+			if err.Error() != tt.want {
+				t.Fatalf("GetPrompt() error = %q, want %q", err.Error(), tt.want)
+			}
+		})
+	}
+}
+
+func TestInputOutputGetPrompt(t *testing.T) {
+	operation := InputOutput{
+		Input:         primitiveVariable("request", "HTTPRequest"),
+		SuccessOutput: primitiveVariable("response", "HTTPResponse"),
+		FailureOutput: primitiveVariable("requestError", "RequestError"),
+		CodeComments:  "Set a timeout before making the request.",
+		FunctionCalls: []*FunctionDefinition{functionCall("sendRequest")},
+	}
+
+	prompt, err := operation.GetPrompt()
+	if err != nil {
+		t.Fatalf("GetPrompt() returned error: %v", err)
+	}
+
+	assertContains(t, prompt, "perform input/output with request of type HTTPRequest")
+	assertContains(t, prompt, "Route the input based on whether the input/output operation succeeds or fails.")
+	assertContains(t, prompt, "- On success, route to response of type HTTPResponse")
+	assertContains(t, prompt, "- On failure, route to requestError of type RequestError")
+	assertContains(t, prompt, "- Add these comments\nSet a timeout before making the request.")
+	assertContains(t, prompt, "Make sure you use these functions in the input/output logic")
+	assertContains(t, prompt, "- sendRequest")
+}
+
+func TestInputOutputGetPromptErrors(t *testing.T) {
+	tests := []struct {
+		name      string
+		operation InputOutput
+		want      string
+	}{
+		{
+			name: "nil input",
+			operation: InputOutput{
+				SuccessOutput: primitiveVariable("success", "string"),
+				FailureOutput: primitiveVariable("failure", "error"),
+			},
+			want: "input/output's input is nil",
+		},
+		{
+			name: "nil input type definition",
+			operation: InputOutput{
+				Input:         variableWithoutType("input"),
+				SuccessOutput: primitiveVariable("success", "string"),
+				FailureOutput: primitiveVariable("failure", "error"),
+			},
+			want: "input/output's input type definition is nil",
+		},
+		{
+			name: "nil success output",
+			operation: InputOutput{
+				Input:         primitiveVariable("input", "string"),
+				FailureOutput: primitiveVariable("failure", "error"),
+			},
+			want: "input/output's success output is nil",
+		},
+		{
+			name: "nil success output type definition",
+			operation: InputOutput{
+				Input:         primitiveVariable("input", "string"),
+				SuccessOutput: variableWithoutType("success"),
+				FailureOutput: primitiveVariable("failure", "error"),
+			},
+			want: "input/output's success output type definition is nil",
+		},
+		{
+			name: "nil failure output",
+			operation: InputOutput{
+				Input:         primitiveVariable("input", "string"),
+				SuccessOutput: primitiveVariable("success", "string"),
+			},
+			want: "input/output's failure output is nil",
+		},
+		{
+			name: "nil failure output type definition",
+			operation: InputOutput{
+				Input:         primitiveVariable("input", "string"),
+				SuccessOutput: primitiveVariable("success", "string"),
+				FailureOutput: variableWithoutType("failure"),
+			},
+			want: "input/output's failure output type definition is nil",
+		},
+		{
+			name: "nil function call",
+			operation: InputOutput{
+				Input:         primitiveVariable("input", "string"),
+				SuccessOutput: primitiveVariable("success", "string"),
+				FailureOutput: primitiveVariable("failure", "error"),
+				FunctionCalls: []*FunctionDefinition{nil},
+			},
+			want: "function call in input/output is nil",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			_, err := tt.operation.GetPrompt()
+			if err == nil {
+				t.Fatal("GetPrompt() returned nil error")
+			}
+
+			if err.Error() != tt.want {
+				t.Fatalf("GetPrompt() error = %q, want %q", err.Error(), tt.want)
+			}
+		})
+	}
+}
+
+func TestPanicGetPrompt(t *testing.T) {
+	operation := Panic{
+		Description:  "Stop processing because the invariant cannot be recovered.",
+		CodeComments: "Include the invariant name in the panic message.",
+	}
+
+	prompt, err := operation.GetPrompt()
+	if err != nil {
+		t.Fatalf("GetPrompt() returned error: %v", err)
+	}
+
+	assertContains(t, prompt, "panic with this description\nStop processing because the invariant cannot be recovered.")
+	assertContains(t, prompt, "- Add these comments\nInclude the invariant name in the panic message.")
+}
+
+func TestPanicGetPromptErrors(t *testing.T) {
+	_, err := (Panic{}).GetPrompt()
+	if err == nil {
+		t.Fatal("GetPrompt() returned nil error")
+	}
+
+	if err.Error() != "panic's description is empty" {
+		t.Fatalf("GetPrompt() error = %q, want %q", err.Error(), "panic's description is empty")
+	}
+}
+
 func TestFilterImplementsUnitOperation(t *testing.T) {
 	var _ UnitOperation = Filter{}
 }
@@ -624,6 +1008,26 @@ func TestValidateImplementsUnitOperation(t *testing.T) {
 
 func TestAuthenticateImplementsUnitOperation(t *testing.T) {
 	var _ UnitOperation = Authenticate{}
+}
+
+func TestAuthorizeImplementsUnitOperation(t *testing.T) {
+	var _ UnitOperation = Authorize{}
+}
+
+func TestGlobalStateReadImplementsUnitOperation(t *testing.T) {
+	var _ UnitOperation = GlobalStateRead{}
+}
+
+func TestGlobalStateWriteImplementsUnitOperation(t *testing.T) {
+	var _ UnitOperation = GlobalStateWrite{}
+}
+
+func TestInputOutputImplementsUnitOperation(t *testing.T) {
+	var _ UnitOperation = InputOutput{}
+}
+
+func TestPanicImplementsUnitOperation(t *testing.T) {
+	var _ UnitOperation = Panic{}
 }
 
 func variableWithoutType(name string) *VariableDefinition {

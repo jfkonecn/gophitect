@@ -258,13 +258,15 @@ func (s Sort) GetFunctionCalls() []*FunctionDefinition {
 type DistributionCondition struct {
 	Condition     string
 	Output        *VariableDefinition
+	CodeComments  string
 	FunctionCalls []*FunctionDefinition
 }
 
 // A Distribution unit operation chooses where data goes next, such as branching.
 type Distribution struct {
-	Input      *VariableDefinition
-	Conditions []DistributionCondition
+	Input        *VariableDefinition
+	CodeComments string
+	Conditions   []DistributionCondition
 }
 
 func (d Distribution) GetInputTypes() []*VariableDefinition {
@@ -308,6 +310,13 @@ func (d Distribution) GetPrompt() (string, error) {
 		return "", err
 	}
 
+	if d.CodeComments != "" {
+		_, err := fmt.Fprintf(&sb, "- Add these comments\n%s\n", d.CodeComments)
+		if err != nil {
+			return "", err
+		}
+	}
+
 	for i, condition := range d.Conditions {
 		if condition.Condition == "" {
 			return "", errors.New("distribution condition is empty")
@@ -333,6 +342,13 @@ func (d Distribution) GetPrompt() (string, error) {
 			outputTypeDefinition.GetTypeName())
 		if err != nil {
 			return "", err
+		}
+
+		if condition.CodeComments != "" {
+			_, err := fmt.Fprintf(&sb, "- Add these comments for this condition\n%s\n", condition.CodeComments)
+			if err != nil {
+				return "", err
+			}
 		}
 
 		if len(condition.FunctionCalls) > 0 {
@@ -370,6 +386,7 @@ type Validate struct {
 	Input         *VariableDefinition
 	SuccessOutput *VariableDefinition
 	FailureOutput *VariableDefinition
+	CodeComments  string
 	FunctionCalls []*FunctionDefinition
 }
 
@@ -440,6 +457,13 @@ func (v Validate) GetPrompt() (string, error) {
 		return "", err
 	}
 
+	if v.CodeComments != "" {
+		_, err := fmt.Fprintf(&sb, "- Add these comments\n%s\n", v.CodeComments)
+		if err != nil {
+			return "", err
+		}
+	}
+
 	if len(v.FunctionCalls) > 0 {
 		_, err := fmt.Fprintln(&sb, "Make sure you use these functions in the validate logic")
 		if err != nil {
@@ -470,6 +494,7 @@ type Authenticate struct {
 	Input         *VariableDefinition
 	SuccessOutput *VariableDefinition
 	FailureOutput *VariableDefinition
+	CodeComments  string
 	FunctionCalls []*FunctionDefinition
 }
 
@@ -540,6 +565,13 @@ func (a Authenticate) GetPrompt() (string, error) {
 		return "", err
 	}
 
+	if a.CodeComments != "" {
+		_, err := fmt.Fprintf(&sb, "- Add these comments\n%s\n", a.CodeComments)
+		if err != nil {
+			return "", err
+		}
+	}
+
 	if len(a.FunctionCalls) > 0 {
 		_, err := fmt.Fprintln(&sb, "Make sure you use these functions in the authenticate logic")
 		if err != nil {
@@ -567,22 +599,116 @@ func (a Authenticate) GetFunctionCalls() []*FunctionDefinition {
 
 // An Authorize unit operation determines whether an authenticated identity may perform an action.
 type Authorize struct {
-	InputTypes    []*TypeDefinition
-	OutputTypes   []*TypeDefinition
-	Prompt        string
-	FunctionCalls []*FunctionDefinition
+	Input               *VariableDefinition
+	AuthorizeConditions string
+	SuccessOutput       *VariableDefinition
+	FailureOutput       *VariableDefinition
+	CodeComments        string
+	FunctionCalls       []*FunctionDefinition
 }
 
-func (a Authorize) GetInputTypes() []*TypeDefinition {
-	return a.InputTypes
+func (a Authorize) GetInputTypes() []*VariableDefinition {
+	return []*VariableDefinition{a.Input}
 }
 
-func (a Authorize) GetOutputTypes() []*TypeDefinition {
-	return a.OutputTypes
+func (a Authorize) GetOutputTypes() []*VariableDefinition {
+	return []*VariableDefinition{a.SuccessOutput, a.FailureOutput}
 }
 
-func (a Authorize) GetPrompt() string {
-	return a.Prompt
+func (a Authorize) GetPrompt() (string, error) {
+	var sb strings.Builder
+
+	if a.Input == nil {
+		return "", errors.New("authorize's input is nil")
+	}
+	input := *a.Input
+
+	if input.GetTypeDefinition() == nil {
+		return "", errors.New("authorize's input type definition is nil")
+	}
+	inputTypeDefinition := *input.GetTypeDefinition()
+
+	if a.AuthorizeConditions == "" {
+		return "", errors.New("authorize's conditions are empty")
+	}
+
+	if a.SuccessOutput == nil {
+		return "", errors.New("authorize's success output is nil")
+	}
+	successOutput := *a.SuccessOutput
+
+	if successOutput.GetTypeDefinition() == nil {
+		return "", errors.New("authorize's success output type definition is nil")
+	}
+	successOutputTypeDefinition := *successOutput.GetTypeDefinition()
+
+	if a.FailureOutput == nil {
+		return "", errors.New("authorize's failure output is nil")
+	}
+	failureOutput := *a.FailureOutput
+
+	if failureOutput.GetTypeDefinition() == nil {
+		return "", errors.New("authorize's failure output type definition is nil")
+	}
+	failureOutputTypeDefinition := *failureOutput.GetTypeDefinition()
+
+	_, err := fmt.Fprintf(&sb, "authorize %s of type %s\n",
+		input.GetVariableName(),
+		inputTypeDefinition.GetTypeName())
+	if err != nil {
+		return "", err
+	}
+
+	_, err = fmt.Fprintf(&sb, "Use these conditions to authorize\n%s\n", a.AuthorizeConditions)
+	if err != nil {
+		return "", err
+	}
+
+	_, err = fmt.Fprintln(&sb, "Route the input based on whether authorization succeeds or fails.")
+	if err != nil {
+		return "", err
+	}
+
+	_, err = fmt.Fprintf(&sb, "- On success, route to %s of type %s\n",
+		successOutput.GetVariableName(),
+		successOutputTypeDefinition.GetTypeName())
+	if err != nil {
+		return "", err
+	}
+
+	_, err = fmt.Fprintf(&sb, "- On failure, route to %s of type %s\n",
+		failureOutput.GetVariableName(),
+		failureOutputTypeDefinition.GetTypeName())
+	if err != nil {
+		return "", err
+	}
+
+	if a.CodeComments != "" {
+		_, err := fmt.Fprintf(&sb, "- Add these comments\n%s\n", a.CodeComments)
+		if err != nil {
+			return "", err
+		}
+	}
+
+	if len(a.FunctionCalls) > 0 {
+		_, err := fmt.Fprintln(&sb, "Make sure you use these functions in the authorize logic")
+		if err != nil {
+			return "", err
+		}
+	}
+
+	for _, functionCall := range a.FunctionCalls {
+		if functionCall == nil {
+			return "", errors.New("function call in authorize is nil")
+		}
+
+		_, err := fmt.Fprintf(&sb, "- %s\n", (*functionCall).GetFunctionName())
+		if err != nil {
+			return "", err
+		}
+	}
+
+	return sb.String(), nil
 }
 
 func (a Authorize) GetFunctionCalls() []*FunctionDefinition {
@@ -591,22 +717,65 @@ func (a Authorize) GetFunctionCalls() []*FunctionDefinition {
 
 // A GlobalStateRead unit operation reads values whose lifetime extends beyond the current call stack.
 type GlobalStateRead struct {
-	InputTypes    []*TypeDefinition
-	OutputTypes   []*TypeDefinition
-	Prompt        string
+	Output        *VariableDefinition
+	CodeComments  string
 	FunctionCalls []*FunctionDefinition
 }
 
-func (g GlobalStateRead) GetInputTypes() []*TypeDefinition {
-	return g.InputTypes
+func (g GlobalStateRead) GetInputTypes() []*VariableDefinition {
+	return nil
 }
 
-func (g GlobalStateRead) GetOutputTypes() []*TypeDefinition {
-	return g.OutputTypes
+func (g GlobalStateRead) GetOutputTypes() []*VariableDefinition {
+	return []*VariableDefinition{g.Output}
 }
 
-func (g GlobalStateRead) GetPrompt() string {
-	return g.Prompt
+func (g GlobalStateRead) GetPrompt() (string, error) {
+	var sb strings.Builder
+
+	if g.Output == nil {
+		return "", errors.New("global state read's output is nil")
+	}
+	output := *g.Output
+
+	if output.GetTypeDefinition() == nil {
+		return "", errors.New("global state read's output type definition is nil")
+	}
+	outputTypeDefinition := *output.GetTypeDefinition()
+
+	_, err := fmt.Fprintf(&sb, "read global state into %s of type %s\n",
+		output.GetVariableName(),
+		outputTypeDefinition.GetTypeName())
+	if err != nil {
+		return "", err
+	}
+
+	if g.CodeComments != "" {
+		_, err := fmt.Fprintf(&sb, "- Add these comments\n%s\n", g.CodeComments)
+		if err != nil {
+			return "", err
+		}
+	}
+
+	if len(g.FunctionCalls) > 0 {
+		_, err := fmt.Fprintln(&sb, "Make sure you use these functions in the global state read logic")
+		if err != nil {
+			return "", err
+		}
+	}
+
+	for _, functionCall := range g.FunctionCalls {
+		if functionCall == nil {
+			return "", errors.New("function call in global state read is nil")
+		}
+
+		_, err := fmt.Fprintf(&sb, "- %s\n", (*functionCall).GetFunctionName())
+		if err != nil {
+			return "", err
+		}
+	}
+
+	return sb.String(), nil
 }
 
 func (g GlobalStateRead) GetFunctionCalls() []*FunctionDefinition {
@@ -615,22 +784,65 @@ func (g GlobalStateRead) GetFunctionCalls() []*FunctionDefinition {
 
 // A GlobalStateWrite unit operation writes values whose lifetime extends beyond the current call stack.
 type GlobalStateWrite struct {
-	InputTypes    []*TypeDefinition
-	OutputTypes   []*TypeDefinition
-	Prompt        string
+	Input         *VariableDefinition
+	CodeComments  string
 	FunctionCalls []*FunctionDefinition
 }
 
-func (g GlobalStateWrite) GetInputTypes() []*TypeDefinition {
-	return g.InputTypes
+func (g GlobalStateWrite) GetInputTypes() []*VariableDefinition {
+	return []*VariableDefinition{g.Input}
 }
 
-func (g GlobalStateWrite) GetOutputTypes() []*TypeDefinition {
-	return g.OutputTypes
+func (g GlobalStateWrite) GetOutputTypes() []*VariableDefinition {
+	return nil
 }
 
-func (g GlobalStateWrite) GetPrompt() string {
-	return g.Prompt
+func (g GlobalStateWrite) GetPrompt() (string, error) {
+	var sb strings.Builder
+
+	if g.Input == nil {
+		return "", errors.New("global state write's input is nil")
+	}
+	input := *g.Input
+
+	if input.GetTypeDefinition() == nil {
+		return "", errors.New("global state write's input type definition is nil")
+	}
+	inputTypeDefinition := *input.GetTypeDefinition()
+
+	_, err := fmt.Fprintf(&sb, "write %s of type %s to global state\n",
+		input.GetVariableName(),
+		inputTypeDefinition.GetTypeName())
+	if err != nil {
+		return "", err
+	}
+
+	if g.CodeComments != "" {
+		_, err := fmt.Fprintf(&sb, "- Add these comments\n%s\n", g.CodeComments)
+		if err != nil {
+			return "", err
+		}
+	}
+
+	if len(g.FunctionCalls) > 0 {
+		_, err := fmt.Fprintln(&sb, "Make sure you use these functions in the global state write logic")
+		if err != nil {
+			return "", err
+		}
+	}
+
+	for _, functionCall := range g.FunctionCalls {
+		if functionCall == nil {
+			return "", errors.New("function call in global state write is nil")
+		}
+
+		_, err := fmt.Fprintf(&sb, "- %s\n", (*functionCall).GetFunctionName())
+		if err != nil {
+			return "", err
+		}
+	}
+
+	return sb.String(), nil
 }
 
 func (g GlobalStateWrite) GetFunctionCalls() []*FunctionDefinition {
@@ -639,22 +851,106 @@ func (g GlobalStateWrite) GetFunctionCalls() []*FunctionDefinition {
 
 // An InputOutput unit operation communicates outside the program, including HTTP, databases, etc.
 type InputOutput struct {
-	InputTypes    []*TypeDefinition
-	OutputTypes   []*TypeDefinition
-	Prompt        string
+	Input         *VariableDefinition
+	SuccessOutput *VariableDefinition
+	FailureOutput *VariableDefinition
+	CodeComments  string
 	FunctionCalls []*FunctionDefinition
 }
 
-func (i InputOutput) GetInputTypes() []*TypeDefinition {
-	return i.InputTypes
+func (i InputOutput) GetInputTypes() []*VariableDefinition {
+	return []*VariableDefinition{i.Input}
 }
 
-func (i InputOutput) GetOutputTypes() []*TypeDefinition {
-	return i.OutputTypes
+func (i InputOutput) GetOutputTypes() []*VariableDefinition {
+	return []*VariableDefinition{i.SuccessOutput, i.FailureOutput}
 }
 
-func (i InputOutput) GetPrompt() string {
-	return i.Prompt
+func (i InputOutput) GetPrompt() (string, error) {
+	var sb strings.Builder
+
+	if i.Input == nil {
+		return "", errors.New("input/output's input is nil")
+	}
+	input := *i.Input
+
+	if input.GetTypeDefinition() == nil {
+		return "", errors.New("input/output's input type definition is nil")
+	}
+	inputTypeDefinition := *input.GetTypeDefinition()
+
+	if i.SuccessOutput == nil {
+		return "", errors.New("input/output's success output is nil")
+	}
+	successOutput := *i.SuccessOutput
+
+	if successOutput.GetTypeDefinition() == nil {
+		return "", errors.New("input/output's success output type definition is nil")
+	}
+	successOutputTypeDefinition := *successOutput.GetTypeDefinition()
+
+	if i.FailureOutput == nil {
+		return "", errors.New("input/output's failure output is nil")
+	}
+	failureOutput := *i.FailureOutput
+
+	if failureOutput.GetTypeDefinition() == nil {
+		return "", errors.New("input/output's failure output type definition is nil")
+	}
+	failureOutputTypeDefinition := *failureOutput.GetTypeDefinition()
+
+	_, err := fmt.Fprintf(&sb, "perform input/output with %s of type %s\n",
+		input.GetVariableName(),
+		inputTypeDefinition.GetTypeName())
+	if err != nil {
+		return "", err
+	}
+
+	_, err = fmt.Fprintln(&sb, "Route the input based on whether the input/output operation succeeds or fails.")
+	if err != nil {
+		return "", err
+	}
+
+	_, err = fmt.Fprintf(&sb, "- On success, route to %s of type %s\n",
+		successOutput.GetVariableName(),
+		successOutputTypeDefinition.GetTypeName())
+	if err != nil {
+		return "", err
+	}
+
+	_, err = fmt.Fprintf(&sb, "- On failure, route to %s of type %s\n",
+		failureOutput.GetVariableName(),
+		failureOutputTypeDefinition.GetTypeName())
+	if err != nil {
+		return "", err
+	}
+
+	if i.CodeComments != "" {
+		_, err := fmt.Fprintf(&sb, "- Add these comments\n%s\n", i.CodeComments)
+		if err != nil {
+			return "", err
+		}
+	}
+
+	if len(i.FunctionCalls) > 0 {
+		_, err := fmt.Fprintln(&sb, "Make sure you use these functions in the input/output logic")
+		if err != nil {
+			return "", err
+		}
+	}
+
+	for _, functionCall := range i.FunctionCalls {
+		if functionCall == nil {
+			return "", errors.New("function call in input/output is nil")
+		}
+
+		_, err := fmt.Fprintf(&sb, "- %s\n", (*functionCall).GetFunctionName())
+		if err != nil {
+			return "", err
+		}
+	}
+
+	return sb.String(), nil
 }
 
 func (i InputOutput) GetFunctionCalls() []*FunctionDefinition {
@@ -663,24 +959,40 @@ func (i InputOutput) GetFunctionCalls() []*FunctionDefinition {
 
 // A Panic unit operation terminates execution of the program.
 type Panic struct {
-	InputTypes    []*TypeDefinition
-	OutputTypes   []*TypeDefinition
-	Prompt        string
-	FunctionCalls []*FunctionDefinition
+	Description  string
+	CodeComments string
 }
 
-func (p Panic) GetInputTypes() []*TypeDefinition {
-	return p.InputTypes
+func (p Panic) GetInputTypes() []*VariableDefinition {
+	return nil
 }
 
-func (p Panic) GetOutputTypes() []*TypeDefinition {
-	return p.OutputTypes
+func (p Panic) GetOutputTypes() []*VariableDefinition {
+	return nil
 }
 
-func (p Panic) GetPrompt() string {
-	return p.Prompt
+func (p Panic) GetPrompt() (string, error) {
+	var sb strings.Builder
+
+	if p.Description == "" {
+		return "", errors.New("panic's description is empty")
+	}
+
+	_, err := fmt.Fprintf(&sb, "panic with this description\n%s\n", p.Description)
+	if err != nil {
+		return "", err
+	}
+
+	if p.CodeComments != "" {
+		_, err := fmt.Fprintf(&sb, "- Add these comments\n%s\n", p.CodeComments)
+		if err != nil {
+			return "", err
+		}
+	}
+
+	return sb.String(), nil
 }
 
 func (p Panic) GetFunctionCalls() []*FunctionDefinition {
-	return p.FunctionCalls
+	return nil
 }
