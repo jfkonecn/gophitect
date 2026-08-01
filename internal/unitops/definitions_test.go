@@ -150,6 +150,94 @@ func TestBasicFunctionDefinitionImplementsFunctionDefinition(t *testing.T) {
 	var _ FunctionDefinition = BasicFunctionDefinition{}
 }
 
+func TestBasicDefinitionsImplementInterfaces(t *testing.T) {
+	var _ TypeDefinition = StructTypeDefinition{}
+	var _ TestCase = BasicTestCase{}
+	var _ TestSuite = BasicTestSuite{}
+	var _ TestFileDefinition = BasicTestFileDefinition{}
+	var _ ProductionFileDefinition = BasicProductionFileDefinition{}
+}
+
+func TestDefinitionsGetFilePath(t *testing.T) {
+	structType := StructTypeDefinition{
+		TypeName: "User",
+		FilePath: "internal/user.go",
+	}
+	if structType.GetFilePath() != "internal/user.go" {
+		t.Fatalf("StructTypeDefinition.GetFilePath() = %q, want %q", structType.GetFilePath(), "internal/user.go")
+	}
+
+	function := BasicFunctionDefinition{
+		FunctionName: "NormalizeUser",
+		FilePath:     "internal/user.go",
+	}
+	if function.GetFilePath() != "internal/user.go" {
+		t.Fatalf("BasicFunctionDefinition.GetFilePath() = %q, want %q", function.GetFilePath(), "internal/user.go")
+	}
+
+	testSuite := BasicTestSuite{
+		FilePath: "internal/user_test.go",
+	}
+	if testSuite.GetFilePath() != "internal/user_test.go" {
+		t.Fatalf("BasicTestSuite.GetFilePath() = %q, want %q", testSuite.GetFilePath(), "internal/user_test.go")
+	}
+}
+
+func TestDefinitionsGetIDDefaultsToFilePathAndName(t *testing.T) {
+	structType := StructTypeDefinition{
+		TypeName: "User",
+		FilePath: "internal/user.go",
+	}
+	if structType.GetID() != "internal/user.goUser" {
+		t.Fatalf("StructTypeDefinition.GetID() = %q, want %q", structType.GetID(), "internal/user.goUser")
+	}
+
+	function := BasicFunctionDefinition{
+		FunctionName: "NormalizeUser",
+		FilePath:     "internal/user.go",
+	}
+	if function.GetID() != "internal/user.goNormalizeUser" {
+		t.Fatalf("BasicFunctionDefinition.GetID() = %q, want %q", function.GetID(), "internal/user.goNormalizeUser")
+	}
+
+	testSuite := BasicTestSuite{
+		Name:     "NormalizeUser",
+		FilePath: "internal/user_test.go",
+	}
+	if testSuite.GetID() != "internal/user_test.goNormalizeUser" {
+		t.Fatalf("BasicTestSuite.GetID() = %q, want %q", testSuite.GetID(), "internal/user_test.goNormalizeUser")
+	}
+}
+
+func TestDefinitionsGetIDUsesExplicitID(t *testing.T) {
+	structType := StructTypeDefinition{
+		ID:       "type:user",
+		TypeName: "User",
+		FilePath: "internal/user.go",
+	}
+	if structType.GetID() != "type:user" {
+		t.Fatalf("StructTypeDefinition.GetID() = %q, want %q", structType.GetID(), "type:user")
+	}
+
+	function := BasicFunctionDefinition{
+		ID:           "function:normalize-user",
+		FunctionName: "NormalizeUser",
+		FilePath:     "internal/user.go",
+	}
+	if function.GetID() != "function:normalize-user" {
+		t.Fatalf("BasicFunctionDefinition.GetID() = %q, want %q", function.GetID(), "function:normalize-user")
+	}
+
+	testSuite := BasicTestSuite{
+		ID:       "suite:normalize-user",
+		Name:     "NormalizeUser",
+		FilePath: "internal/user_test.go",
+	}
+	if testSuite.GetID() != "suite:normalize-user" {
+		t.Fatalf("BasicTestSuite.GetID() = %q, want %q", testSuite.GetID(), "suite:normalize-user")
+	}
+}
+
 func assertVariable(t *testing.T, variableDefinition *VariableDefinition, name, typeName string) {
 	t.Helper()
 

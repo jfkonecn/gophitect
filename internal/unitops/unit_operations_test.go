@@ -9,8 +9,16 @@ type testFunctionDefinition struct {
 	name string
 }
 
+func (f testFunctionDefinition) GetID() string {
+	return f.name
+}
+
 func (f testFunctionDefinition) GetFunctionName() string {
 	return f.name
+}
+
+func (f testFunctionDefinition) GetFilePath() string {
+	return ""
 }
 
 func (f testFunctionDefinition) GetPrompt() (string, error) {

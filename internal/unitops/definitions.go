@@ -44,6 +44,14 @@ func (t *PrimitiveTypeDefinition) GetTypeName() string {
 	return fmt.Sprintf("%s", t.primitiveType)
 }
 
+func (t *PrimitiveTypeDefinition) GetID() string {
+	return defaultDefinitionID(t.GetFilePath(), t.GetTypeName())
+}
+
+func (t *PrimitiveTypeDefinition) GetFilePath() string {
+	return ""
+}
+
 func (t *PrimitiveTypeDefinition) IsBuiltin() bool {
 	return true
 }
@@ -65,6 +73,14 @@ func (t *CollectionTypeDefinition) GetTypeName() string {
 	return fmt.Sprintf("A %s of %s", t.CollectionType, t.TypeDefinition.GetTypeName())
 }
 
+func (t *CollectionTypeDefinition) GetID() string {
+	return defaultDefinitionID(t.GetFilePath(), t.GetTypeName())
+}
+
+func (t *CollectionTypeDefinition) GetFilePath() string {
+	return t.TypeDefinition.GetFilePath()
+}
+
 func (t *CollectionTypeDefinition) IsBuiltin() bool {
 	return true
 }
@@ -84,7 +100,9 @@ type StructTypeField struct {
 }
 
 type StructTypeDefinition struct {
+	ID           string
 	TypeName     string
+	FilePath     string
 	CodeComments string
 	Fields       []*StructTypeField
 }
@@ -151,6 +169,22 @@ func (t StructTypeDefinition) IsBuiltin() bool {
 	return false
 }
 
+func (t StructTypeDefinition) GetTypeName() string {
+	return t.TypeName
+}
+
+func (t StructTypeDefinition) GetID() string {
+	if t.ID != "" {
+		return t.ID
+	}
+
+	return defaultDefinitionID(t.FilePath, t.TypeName)
+}
+
+func (t StructTypeDefinition) GetFilePath() string {
+	return t.FilePath
+}
+
 func (t StructTypeDefinition) GetDependentTypes() []*TypeDefinition {
 	var definitions []*TypeDefinition
 	for _, field := range t.Fields {
@@ -162,13 +196,27 @@ func (t StructTypeDefinition) GetDependentTypes() []*TypeDefinition {
 }
 
 type BasicFunctionDefinition struct {
+	ID             string
 	FunctionName   string
+	FilePath       string
 	CodeComments   string
 	UnitOperations []*UnitOperation
 }
 
 func (f BasicFunctionDefinition) GetFunctionName() string {
 	return f.FunctionName
+}
+
+func (f BasicFunctionDefinition) GetID() string {
+	if f.ID != "" {
+		return f.ID
+	}
+
+	return defaultDefinitionID(f.FilePath, f.FunctionName)
+}
+
+func (f BasicFunctionDefinition) GetFilePath() string {
+	return f.FilePath
 }
 
 func (f BasicFunctionDefinition) GetPrompt() (string, error) {
@@ -291,26 +339,41 @@ func variableDefinitionKey(variableDefinition *VariableDefinition) string {
 }
 
 type BasicTestCase struct {
-	Name   string
-	Prompt string
+	Name        string
+	Description string
 }
 
 func (t BasicTestCase) GetName() string {
 	return t.Name
 }
 
-func (t BasicTestCase) GetPrompt() string {
-	return t.Prompt
+func (t BasicTestCase) GetPrompt() (string, error) {
+	return t.Description, nil
 }
 
 type BasicTestSuite struct {
+	ID                 string
+	Name               string
 	Prompt             string
+	FilePath           string
 	FunctionDefinition *FunctionDefinition
 	TestCases          []*TestCase
 }
 
-func (t BasicTestSuite) GetPrompt() string {
-	return t.Prompt
+func (t BasicTestSuite) GetID() string {
+	if t.ID != "" {
+		return t.ID
+	}
+
+	return defaultDefinitionID(t.FilePath, t.Name)
+}
+
+func (t BasicTestSuite) GetPrompt() (string, error) {
+	return t.Prompt, nil
+}
+
+func (t BasicTestSuite) GetFilePath() string {
+	return t.FilePath
 }
 
 func (t BasicTestSuite) GetFunctionDefinition() *FunctionDefinition {
@@ -327,8 +390,8 @@ type BasicTestFileDefinition struct {
 	TestSuites []*TestSuite
 }
 
-func (t BasicTestFileDefinition) GetPrompt() string {
-	return t.Prompt
+func (t BasicTestFileDefinition) GetPrompt() (string, error) {
+	return t.Prompt, nil
 }
 
 func (t BasicTestFileDefinition) GetFilePath() string {
@@ -344,11 +407,10 @@ type BasicProductionFileDefinition struct {
 	FilePath            string
 	TypeDefinitions     []*TypeDefinition
 	FunctionDefinitions []*FunctionDefinition
-	ProgrammingLanguage string
 }
 
-func (p BasicProductionFileDefinition) GetPrompt() string {
-	return p.Prompt
+func (p BasicProductionFileDefinition) GetPrompt() (string, error) {
+	return p.Prompt, nil
 }
 
 func (p BasicProductionFileDefinition) GetFilePath() string {
@@ -361,4 +423,8 @@ func (p BasicProductionFileDefinition) GetTypeDefinitions() []*TypeDefinition {
 
 func (p BasicProductionFileDefinition) GetFunctionDefinitions() []*FunctionDefinition {
 	return p.FunctionDefinitions
+}
+
+func defaultDefinitionID(filePath, name string) string {
+	return filePath + name
 }

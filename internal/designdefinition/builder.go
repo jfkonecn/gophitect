@@ -51,4 +51,5 @@ func (spec *DesignDefinitionSpec) Build() DesignDefinition {
 	// dfs for type definitions
 	d := DesignDefinition{}
 
+	return d
 }
