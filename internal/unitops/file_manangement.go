@@ -3,7 +3,6 @@ package unitops
 import (
 	"fmt"
 	"sort"
-	"strings"
 )
 
 type FileDefinition struct {
@@ -69,69 +68,4 @@ func BuildFileDefinitions(
 	}
 
 	return fileDefinitions, nil
-}
-
-func (f FileDefinition) GetPrompt() (string, error) {
-	var sb strings.Builder
-
-	_, err := fmt.Fprintf(&sb, "# File Definition For %s\n", f.FilePath)
-	if err != nil {
-		return "", err
-	}
-
-	if len(f.TypeDefinitions) > 0 {
-		_, err = fmt.Fprintln(&sb, "## Types")
-		if err != nil {
-			return "", err
-		}
-	}
-
-	for _, typeDefinition := range f.TypeDefinitions {
-		if typeDefinition == nil {
-			return "", fmt.Errorf("type definition in file is nil")
-		}
-
-		_, err = fmt.Fprintf(&sb, "- %s\n", (*typeDefinition).GetTypeName())
-		if err != nil {
-			return "", err
-		}
-	}
-
-	if len(f.FunctionDefinitions) > 0 {
-		_, err = fmt.Fprintln(&sb, "## Functions")
-		if err != nil {
-			return "", err
-		}
-	}
-
-	for _, functionDefinition := range f.FunctionDefinitions {
-		if functionDefinition == nil {
-			return "", fmt.Errorf("function definition in file is nil")
-		}
-
-		_, err = fmt.Fprintf(&sb, "- %s\n", (*functionDefinition).GetFunctionName())
-		if err != nil {
-			return "", err
-		}
-	}
-
-	if len(f.TestSuites) > 0 {
-		_, err = fmt.Fprintln(&sb, "## Test Suites")
-		if err != nil {
-			return "", err
-		}
-	}
-
-	for _, testSuite := range f.TestSuites {
-		if testSuite == nil {
-			return "", fmt.Errorf("test suite in file is nil")
-		}
-
-		_, err = fmt.Fprintf(&sb, "- %s\n", (*testSuite).GetID())
-		if err != nil {
-			return "", err
-		}
-	}
-
-	return sb.String(), nil
 }

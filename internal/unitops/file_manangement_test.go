@@ -93,37 +93,6 @@ func TestBuildFileDefinitionsErrors(t *testing.T) {
 	}
 }
 
-func TestFileDefinitionGetPrompt(t *testing.T) {
-	userType := TypeDefinition(StructTypeDefinition{
-		TypeName: "User",
-		FilePath: "internal/user.go",
-	})
-	normalizeUserFunction := FunctionDefinition(BasicFunctionDefinition{
-		FunctionName: "NormalizeUser",
-		FilePath:     "internal/user.go",
-	})
-	normalizeUserSuite := TestSuite(BasicTestSuite{
-		Name:     "NormalizeUser",
-		FilePath: "internal/user.go",
-	})
-	fileDefinition := FileDefinition{
-		FilePath:            "internal/user.go",
-		TestSuites:          []*TestSuite{&normalizeUserSuite},
-		TypeDefinitions:     []*TypeDefinition{&userType},
-		FunctionDefinitions: []*FunctionDefinition{&normalizeUserFunction},
-	}
-
-	prompt, err := fileDefinition.GetPrompt()
-	if err != nil {
-		t.Fatalf("GetPrompt() returned error: %v", err)
-	}
-
-	assertContains(t, prompt, "# File Definition For internal/user.go")
-	assertContains(t, prompt, "## Types\n- User")
-	assertContains(t, prompt, "## Functions\n- NormalizeUser")
-	assertContains(t, prompt, "## Test Suites\n- internal/user.goNormalizeUser")
-}
-
 func assertFileDefinition(
 	t *testing.T,
 	fileDefinition *FileDefinition,

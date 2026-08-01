@@ -188,7 +188,7 @@ func (t StructTypeDefinition) GetFilePath() string {
 func (t StructTypeDefinition) GetDependentTypes() []*TypeDefinition {
 	var definitions []*TypeDefinition
 	for _, field := range t.Fields {
-		if (*field.TypeDefinition).IsBuiltin() {
+		if field.TypeDefinition != nil && !(*field.TypeDefinition).IsBuiltin() {
 			definitions = append(definitions, field.TypeDefinition)
 		}
 	}
