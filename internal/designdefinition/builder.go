@@ -6,26 +6,25 @@ import (
 )
 
 type DesignDefinitionSpec struct {
-	TestFileDefinitions       []*unitops.TestFileDefinition
-	ProductionFileDefinitions []*unitops.ProductionFileDefinition
+	FileDefinitions []*unitops.FileDefinition
 }
 
 func New() DesignDefinitionSpec {
 	return DesignDefinitionSpec{}
 }
 
-func (spec *DesignDefinitionSpec) AddProductionFile(f *unitops.ProductionFileDefinition) {
+func (spec *DesignDefinitionSpec) AddProductionFile(f *unitops.FileDefinition) {
 	if f == nil {
-		panic("AddProductionFile: ProductionFileDefinition cannot be nil")
+		panic("AddProductionFile: FileDefinition cannot be nil")
 	}
-	spec.ProductionFileDefinitions = append(spec.ProductionFileDefinitions, f)
+	spec.FileDefinitions = append(spec.FileDefinitions, f)
 }
 
-func (spec *DesignDefinitionSpec) AddTestFile(f *unitops.TestFileDefinition) {
+func (spec *DesignDefinitionSpec) AddTestFile(f *unitops.FileDefinition) {
 	if f == nil {
-		panic("AddTestFile: TestFileDefinition cannot be nil")
+		panic("AddTestFile: FileDefinition cannot be nil")
 	}
-	spec.TestFileDefinitions = append(spec.TestFileDefinitions, f)
+	spec.FileDefinitions = append(spec.FileDefinitions, f)
 }
 
 type TypeDefinition struct {

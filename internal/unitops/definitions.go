@@ -348,13 +348,30 @@ func (t BasicTestCase) GetName() string {
 }
 
 func (t BasicTestCase) GetPrompt() (string, error) {
-	return t.Description, nil
+	var sb strings.Builder
+
+	if t.Name == "" {
+		return "", fmt.Errorf("test case's name is empty")
+	}
+
+	_, err := fmt.Fprintf(&sb, "test case %s\n", t.Name)
+	if err != nil {
+		return "", err
+	}
+
+	if t.Description != "" {
+		_, err = fmt.Fprintf(&sb, "Use this test case description\n%s\n", t.Description)
+		if err != nil {
+			return "", err
+		}
+	}
+
+	return sb.String(), nil
 }
 
 type BasicTestSuite struct {
 	ID                 string
 	Name               string
-	Prompt             string
 	FilePath           string
 	FunctionDefinition *FunctionDefinition
 	TestCases          []*TestCase
@@ -369,7 +386,70 @@ func (t BasicTestSuite) GetID() string {
 }
 
 func (t BasicTestSuite) GetPrompt() (string, error) {
-	return t.Prompt, nil
+	var sb strings.Builder
+
+	if t.Name == "" {
+		return "", fmt.Errorf("test suite's name is empty")
+	}
+
+	if t.FunctionDefinition == nil {
+		return "", fmt.Errorf("test suite's function definition is nil")
+	}
+	functionDefinition := *t.FunctionDefinition
+
+	_, err := fmt.Fprintf(&sb, "# Test Suite For %s\n", t.Name)
+	if err != nil {
+		return "", err
+	}
+
+	if t.FilePath != "" {
+		_, err = fmt.Fprintf(&sb, "Create the test suite in %s\n", t.FilePath)
+		if err != nil {
+			return "", err
+		}
+	}
+
+	_, err = fmt.Fprintf(&sb, "Test function %s", functionDefinition.GetFunctionName())
+	if err != nil {
+		return "", err
+	}
+
+	if functionDefinition.GetFilePath() != "" {
+		_, err = fmt.Fprintf(&sb, " from %s", functionDefinition.GetFilePath())
+		if err != nil {
+			return "", err
+		}
+	}
+
+	_, err = fmt.Fprintln(&sb)
+	if err != nil {
+		return "", err
+	}
+
+	if len(t.TestCases) > 0 {
+		_, err = fmt.Fprintln(&sb, "Use these test cases")
+		if err != nil {
+			return "", err
+		}
+	}
+
+	for i, testCase := range t.TestCases {
+		if testCase == nil {
+			return "", fmt.Errorf("test case in test suite is nil")
+		}
+
+		testCasePrompt, err := (*testCase).GetPrompt()
+		if err != nil {
+			return "", err
+		}
+
+		_, err = fmt.Fprintf(&sb, "%d. %s", i+1, testCasePrompt)
+		if err != nil {
+			return "", err
+		}
+	}
+
+	return sb.String(), nil
 }
 
 func (t BasicTestSuite) GetFilePath() string {
@@ -382,47 +462,6 @@ func (t BasicTestSuite) GetFunctionDefinition() *FunctionDefinition {
 
 func (t BasicTestSuite) GetTestCases() []*TestCase {
 	return t.TestCases
-}
-
-type BasicTestFileDefinition struct {
-	Prompt     string
-	FilePath   string
-	TestSuites []*TestSuite
-}
-
-func (t BasicTestFileDefinition) GetPrompt() (string, error) {
-	return t.Prompt, nil
-}
-
-func (t BasicTestFileDefinition) GetFilePath() string {
-	return t.FilePath
-}
-
-func (t BasicTestFileDefinition) GetTestSuites() []*TestSuite {
-	return t.TestSuites
-}
-
-type BasicProductionFileDefinition struct {
-	Prompt              string
-	FilePath            string
-	TypeDefinitions     []*TypeDefinition
-	FunctionDefinitions []*FunctionDefinition
-}
-
-func (p BasicProductionFileDefinition) GetPrompt() (string, error) {
-	return p.Prompt, nil
-}
-
-func (p BasicProductionFileDefinition) GetFilePath() string {
-	return p.FilePath
-}
-
-func (p BasicProductionFileDefinition) GetTypeDefinitions() []*TypeDefinition {
-	return p.TypeDefinitions
-}
-
-func (p BasicProductionFileDefinition) GetFunctionDefinitions() []*FunctionDefinition {
-	return p.FunctionDefinitions
 }
 
 func defaultDefinitionID(filePath, name string) string {

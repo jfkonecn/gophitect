@@ -43,16 +43,3 @@ type TestSuite interface {
 	GetFunctionDefinition() *FunctionDefinition
 	GetTestCases() []*TestCase
 }
-
-type TestFileDefinition interface {
-	GetPrompt() (string, error)
-	GetFilePath() string
-	GetTestSuites() []*TestSuite
-}
-
-type ProductionFileDefinition interface {
-	GetPrompt() (string, error)
-	GetFilePath() string
-	GetTypeDefinitions() []*TypeDefinition
-	GetFunctionDefinitions() []*FunctionDefinition
-}

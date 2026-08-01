@@ -154,8 +154,6 @@ func TestBasicDefinitionsImplementInterfaces(t *testing.T) {
 	var _ TypeDefinition = StructTypeDefinition{}
 	var _ TestCase = BasicTestCase{}
 	var _ TestSuite = BasicTestSuite{}
-	var _ TestFileDefinition = BasicTestFileDefinition{}
-	var _ ProductionFileDefinition = BasicProductionFileDefinition{}
 }
 
 func TestDefinitionsGetFilePath(t *testing.T) {
@@ -235,6 +233,123 @@ func TestDefinitionsGetIDUsesExplicitID(t *testing.T) {
 	}
 	if testSuite.GetID() != "suite:normalize-user" {
 		t.Fatalf("BasicTestSuite.GetID() = %q, want %q", testSuite.GetID(), "suite:normalize-user")
+	}
+}
+
+func TestBasicTestCaseGetPrompt(t *testing.T) {
+	testCase := BasicTestCase{
+		Name:        "valid user",
+		Description: "Returns a normalized user when input is valid.",
+	}
+
+	prompt, err := testCase.GetPrompt()
+	if err != nil {
+		t.Fatalf("GetPrompt() returned error: %v", err)
+	}
+
+	assertContains(t, prompt, "test case valid user")
+	assertContains(t, prompt, "Use this test case description\nReturns a normalized user when input is valid.")
+}
+
+func TestBasicTestCaseGetPromptErrors(t *testing.T) {
+	_, err := (BasicTestCase{}).GetPrompt()
+	if err == nil {
+		t.Fatal("GetPrompt() returned nil error")
+	}
+
+	if err.Error() != "test case's name is empty" {
+		t.Fatalf("GetPrompt() error = %q, want %q", err.Error(), "test case's name is empty")
+	}
+}
+
+func TestBasicTestSuiteGetPrompt(t *testing.T) {
+	function := FunctionDefinition(BasicFunctionDefinition{
+		FunctionName: "NormalizeUser",
+		FilePath:     "internal/user.go",
+	})
+	validUserCase := TestCase(BasicTestCase{
+		Name:        "valid user",
+		Description: "Returns a normalized user when input is valid.",
+	})
+	invalidUserCase := TestCase(BasicTestCase{
+		Name:        "invalid user",
+		Description: "Returns a validation error when input is invalid.",
+	})
+	testSuite := BasicTestSuite{
+		Name:               "NormalizeUser",
+		FilePath:           "internal/user_test.go",
+		FunctionDefinition: &function,
+		TestCases:          []*TestCase{&validUserCase, &invalidUserCase},
+	}
+
+	prompt, err := testSuite.GetPrompt()
+	if err != nil {
+		t.Fatalf("GetPrompt() returned error: %v", err)
+	}
+
+	assertContains(t, prompt, "# Test Suite For NormalizeUser")
+	assertContains(t, prompt, "Create the test suite in internal/user_test.go")
+	assertContains(t, prompt, "Test function NormalizeUser from internal/user.go")
+	assertContains(t, prompt, "Use these test cases")
+	assertContains(t, prompt, "1. test case valid user")
+	assertContains(t, prompt, "Returns a normalized user when input is valid.")
+	assertContains(t, prompt, "2. test case invalid user")
+	assertContains(t, prompt, "Returns a validation error when input is invalid.")
+}
+
+func TestBasicTestSuiteGetPromptErrors(t *testing.T) {
+	function := FunctionDefinition(BasicFunctionDefinition{FunctionName: "NormalizeUser"})
+	testCase := TestCase(BasicTestCase{Name: "valid user"})
+	unnamedTestCase := TestCase(BasicTestCase{})
+
+	tests := []struct {
+		name      string
+		testSuite BasicTestSuite
+		want      string
+	}{
+		{
+			name:      "empty name",
+			testSuite: BasicTestSuite{},
+			want:      "test suite's name is empty",
+		},
+		{
+			name: "nil function definition",
+			testSuite: BasicTestSuite{
+				Name: "NormalizeUser",
+			},
+			want: "test suite's function definition is nil",
+		},
+		{
+			name: "nil test case",
+			testSuite: BasicTestSuite{
+				Name:               "NormalizeUser",
+				FunctionDefinition: &function,
+				TestCases:          []*TestCase{nil},
+			},
+			want: "test case in test suite is nil",
+		},
+		{
+			name: "test case prompt error",
+			testSuite: BasicTestSuite{
+				Name:               "NormalizeUser",
+				FunctionDefinition: &function,
+				TestCases:          []*TestCase{&testCase, &unnamedTestCase},
+			},
+			want: "test case's name is empty",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			_, err := tt.testSuite.GetPrompt()
+			if err == nil {
+				t.Fatal("GetPrompt() returned nil error")
+			}
+
+			if err.Error() != tt.want {
+				t.Fatalf("GetPrompt() error = %q, want %q", err.Error(), tt.want)
+			}
+		})
 	}
 }
 
