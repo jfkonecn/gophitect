@@ -21,6 +21,14 @@ func (f testFunctionDefinition) GetFilePath() string {
 	return ""
 }
 
+func (f testFunctionDefinition) GetProgrammingLanguageInformation() string {
+	return ""
+}
+
+func (f testFunctionDefinition) GetPackageNamespace() string {
+	return ""
+}
+
 func (f testFunctionDefinition) GetPrompt() (string, error) {
 	return "", nil
 }

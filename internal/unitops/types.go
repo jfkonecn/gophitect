@@ -8,6 +8,8 @@ type TypeDefinition interface {
 	IsBuiltin() bool
 	GetTypeName() string
 	GetFilePath() string
+	GetProgrammingLanguageInformation() string
+	GetPackageNamespace() string
 }
 type VariableDefinition interface {
 	GetVariableName() string
@@ -25,6 +27,8 @@ type FunctionDefinition interface {
 	GetID() string
 	GetFunctionName() string
 	GetFilePath() string
+	GetProgrammingLanguageInformation() string
+	GetPackageNamespace() string
 	GetPrompt() (string, error)
 	GetInputs() []*VariableDefinition
 	GetOutput() *TypeDefinition
@@ -40,6 +44,8 @@ type TestSuite interface {
 	GetID() string
 	GetPrompt() (string, error)
 	GetFilePath() string
+	GetProgrammingLanguageInformation() string
+	GetPackageNamespace() string
 	GetFunctionDefinition() *FunctionDefinition
 	GetTestCases() []*TestCase
 }

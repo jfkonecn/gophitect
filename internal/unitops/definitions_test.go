@@ -45,11 +45,44 @@ func TestBasicFunctionDefinitionGetPrompt(t *testing.T) {
 	}
 
 	assertContains(t, prompt, "implement function NormalizeName")
+	assertContains(t, prompt, "## Programming Language\nImplement the function in Go.")
 	assertContains(t, prompt, "- Add these comments\nReturn a display-safe name.")
 	assertContains(t, prompt, "Use these unit operations in order")
 	assertContains(t, prompt, "1. Map rawName of type string to trimmedName of type string")
 	assertContains(t, prompt, "- Add these comments\nTrim whitespace.")
 	assertContains(t, prompt, "2. Map trimmedName of type string to normalizedName of type string")
+}
+
+func TestBasicFunctionDefinitionGetPromptUsesProgrammingLanguageInformation(t *testing.T) {
+	function := BasicFunctionDefinition{
+		FunctionName:                   "NormalizeName",
+		ProgrammingLanguageInformation: "Implement the function in TypeScript.",
+		PackageNamespace:               "Put this function in the user namespace.",
+	}
+
+	prompt, err := function.GetPrompt()
+	if err != nil {
+		t.Fatalf("GetPrompt() returned error: %v", err)
+	}
+
+	assertContains(t, prompt, "## Programming Language\nImplement the function in TypeScript.")
+	assertContains(t, prompt, "## Package/Namespace\nPut this function in the user namespace.")
+}
+
+func TestStructTypeDefinitionGetPromptUsesProgrammingLanguageInformation(t *testing.T) {
+	typeDefinition := StructTypeDefinition{
+		TypeName:                       "User",
+		ProgrammingLanguageInformation: "Define the type in Go.",
+		PackageNamespace:               "Put this type in package user.",
+	}
+
+	prompt, err := typeDefinition.GetPrompt()
+	if err != nil {
+		t.Fatalf("GetPrompt() returned error: %v", err)
+	}
+
+	assertContains(t, prompt, "## Programming Language\nDefine the type in Go.")
+	assertContains(t, prompt, "## Package/Namespace\nPut this type in package user.")
 }
 
 func TestBasicFunctionDefinitionGetPromptErrors(t *testing.T) {
@@ -181,6 +214,23 @@ func TestDefinitionsGetFilePath(t *testing.T) {
 	}
 }
 
+func TestDefinitionsGetPackageNamespace(t *testing.T) {
+	structType := StructTypeDefinition{PackageNamespace: "Put this type in package user."}
+	if structType.GetPackageNamespace() != "Put this type in package user." {
+		t.Fatalf("StructTypeDefinition.GetPackageNamespace() = %q, want %q", structType.GetPackageNamespace(), "Put this type in package user.")
+	}
+
+	function := BasicFunctionDefinition{PackageNamespace: "Put this function in package user."}
+	if function.GetPackageNamespace() != "Put this function in package user." {
+		t.Fatalf("BasicFunctionDefinition.GetPackageNamespace() = %q, want %q", function.GetPackageNamespace(), "Put this function in package user.")
+	}
+
+	testSuite := BasicTestSuite{PackageNamespace: "Put these tests in package user_test."}
+	if testSuite.GetPackageNamespace() != "Put these tests in package user_test." {
+		t.Fatalf("BasicTestSuite.GetPackageNamespace() = %q, want %q", testSuite.GetPackageNamespace(), "Put these tests in package user_test.")
+	}
+}
+
 func TestDefinitionsGetIDDefaultsToFilePathAndName(t *testing.T) {
 	structType := StructTypeDefinition{
 		TypeName: "User",
@@ -289,12 +339,31 @@ func TestBasicTestSuiteGetPrompt(t *testing.T) {
 
 	assertContains(t, prompt, "# Test Suite For NormalizeUser")
 	assertContains(t, prompt, "Create the test suite in internal/user_test.go")
+	assertContains(t, prompt, "## Programming Language\nImplement the function in Go.")
 	assertContains(t, prompt, "Test function NormalizeUser from internal/user.go")
 	assertContains(t, prompt, "Use these test cases")
 	assertContains(t, prompt, "1. test case valid user")
 	assertContains(t, prompt, "Returns a normalized user when input is valid.")
 	assertContains(t, prompt, "2. test case invalid user")
 	assertContains(t, prompt, "Returns a validation error when input is invalid.")
+}
+
+func TestBasicTestSuiteGetPromptUsesProgrammingLanguageInformation(t *testing.T) {
+	function := FunctionDefinition(BasicFunctionDefinition{FunctionName: "NormalizeUser"})
+	testSuite := BasicTestSuite{
+		Name:                           "NormalizeUser",
+		ProgrammingLanguageInformation: "Write the tests in Go using the testing package.",
+		PackageNamespace:               "Put these tests in package user_test.",
+		FunctionDefinition:             &function,
+	}
+
+	prompt, err := testSuite.GetPrompt()
+	if err != nil {
+		t.Fatalf("GetPrompt() returned error: %v", err)
+	}
+
+	assertContains(t, prompt, "## Programming Language\nWrite the tests in Go using the testing package.")
+	assertContains(t, prompt, "## Package/Namespace\nPut these tests in package user_test.")
 }
 
 func TestBasicTestSuiteGetPromptErrors(t *testing.T) {

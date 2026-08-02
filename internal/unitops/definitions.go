@@ -52,6 +52,14 @@ func (t *PrimitiveTypeDefinition) GetFilePath() string {
 	return ""
 }
 
+func (t *PrimitiveTypeDefinition) GetProgrammingLanguageInformation() string {
+	return ""
+}
+
+func (t *PrimitiveTypeDefinition) GetPackageNamespace() string {
+	return ""
+}
+
 func (t *PrimitiveTypeDefinition) IsBuiltin() bool {
 	return true
 }
@@ -81,6 +89,14 @@ func (t *CollectionTypeDefinition) GetFilePath() string {
 	return t.TypeDefinition.GetFilePath()
 }
 
+func (t *CollectionTypeDefinition) GetProgrammingLanguageInformation() string {
+	return t.TypeDefinition.GetProgrammingLanguageInformation()
+}
+
+func (t *CollectionTypeDefinition) GetPackageNamespace() string {
+	return t.TypeDefinition.GetPackageNamespace()
+}
+
 func (t *CollectionTypeDefinition) IsBuiltin() bool {
 	return true
 }
@@ -100,11 +116,13 @@ type StructTypeField struct {
 }
 
 type StructTypeDefinition struct {
-	ID           string
-	TypeName     string
-	FilePath     string
-	CodeComments string
-	Fields       []*StructTypeField
+	ID                             string
+	TypeName                       string
+	FilePath                       string
+	ProgrammingLanguageInformation string
+	PackageNamespace               string
+	CodeComments                   string
+	Fields                         []*StructTypeField
 }
 
 func (t StructTypeDefinition) GetPrompt() (string, error) {
@@ -118,6 +136,20 @@ func (t StructTypeDefinition) GetPrompt() (string, error) {
 	_, err = fmt.Fprintln(&sb, "You are going make a type definition. Here are the specs:")
 	if err != nil {
 		return "", err
+	}
+
+	if t.ProgrammingLanguageInformation != "" {
+		_, err = fmt.Fprintf(&sb, "## Programming Language\n%s\n", t.ProgrammingLanguageInformation)
+		if err != nil {
+			return "", err
+		}
+	}
+
+	if t.PackageNamespace != "" {
+		_, err = fmt.Fprintf(&sb, "## Package/Namespace\n%s\n", t.PackageNamespace)
+		if err != nil {
+			return "", err
+		}
 	}
 
 	_, err = fmt.Fprintln(&sb, "## Code Comments")
@@ -185,6 +217,14 @@ func (t StructTypeDefinition) GetFilePath() string {
 	return t.FilePath
 }
 
+func (t StructTypeDefinition) GetProgrammingLanguageInformation() string {
+	return t.ProgrammingLanguageInformation
+}
+
+func (t StructTypeDefinition) GetPackageNamespace() string {
+	return t.PackageNamespace
+}
+
 func (t StructTypeDefinition) GetDependentTypes() []*TypeDefinition {
 	var definitions []*TypeDefinition
 	for _, field := range t.Fields {
@@ -196,11 +236,13 @@ func (t StructTypeDefinition) GetDependentTypes() []*TypeDefinition {
 }
 
 type BasicFunctionDefinition struct {
-	ID             string
-	FunctionName   string
-	FilePath       string
-	CodeComments   string
-	UnitOperations []*UnitOperation
+	ID                             string
+	FunctionName                   string
+	FilePath                       string
+	ProgrammingLanguageInformation string
+	PackageNamespace               string
+	CodeComments                   string
+	UnitOperations                 []*UnitOperation
 }
 
 func (f BasicFunctionDefinition) GetFunctionName() string {
@@ -219,6 +261,18 @@ func (f BasicFunctionDefinition) GetFilePath() string {
 	return f.FilePath
 }
 
+func (f BasicFunctionDefinition) GetProgrammingLanguageInformation() string {
+	if f.ProgrammingLanguageInformation != "" {
+		return f.ProgrammingLanguageInformation
+	}
+
+	return defaultFunctionProgrammingLanguageInformation
+}
+
+func (f BasicFunctionDefinition) GetPackageNamespace() string {
+	return f.PackageNamespace
+}
+
 func (f BasicFunctionDefinition) GetPrompt() (string, error) {
 	var sb strings.Builder
 
@@ -229,6 +283,18 @@ func (f BasicFunctionDefinition) GetPrompt() (string, error) {
 	_, err := fmt.Fprintf(&sb, "implement function %s\n", f.FunctionName)
 	if err != nil {
 		return "", err
+	}
+
+	_, err = fmt.Fprintf(&sb, "## Programming Language\n%s\n", f.GetProgrammingLanguageInformation())
+	if err != nil {
+		return "", err
+	}
+
+	if f.PackageNamespace != "" {
+		_, err = fmt.Fprintf(&sb, "## Package/Namespace\n%s\n", f.PackageNamespace)
+		if err != nil {
+			return "", err
+		}
 	}
 
 	if f.CodeComments != "" {
@@ -370,11 +436,13 @@ func (t BasicTestCase) GetPrompt() (string, error) {
 }
 
 type BasicTestSuite struct {
-	ID                 string
-	Name               string
-	FilePath           string
-	FunctionDefinition *FunctionDefinition
-	TestCases          []*TestCase
+	ID                             string
+	Name                           string
+	FilePath                       string
+	ProgrammingLanguageInformation string
+	PackageNamespace               string
+	FunctionDefinition             *FunctionDefinition
+	TestCases                      []*TestCase
 }
 
 func (t BasicTestSuite) GetID() string {
@@ -404,6 +472,18 @@ func (t BasicTestSuite) GetPrompt() (string, error) {
 
 	if t.FilePath != "" {
 		_, err = fmt.Fprintf(&sb, "Create the test suite in %s\n", t.FilePath)
+		if err != nil {
+			return "", err
+		}
+	}
+
+	_, err = fmt.Fprintf(&sb, "## Programming Language\n%s\n", t.GetProgrammingLanguageInformation())
+	if err != nil {
+		return "", err
+	}
+
+	if t.PackageNamespace != "" {
+		_, err = fmt.Fprintf(&sb, "## Package/Namespace\n%s\n", t.PackageNamespace)
 		if err != nil {
 			return "", err
 		}
@@ -454,6 +534,22 @@ func (t BasicTestSuite) GetPrompt() (string, error) {
 
 func (t BasicTestSuite) GetFilePath() string {
 	return t.FilePath
+}
+
+func (t BasicTestSuite) GetProgrammingLanguageInformation() string {
+	if t.ProgrammingLanguageInformation != "" {
+		return t.ProgrammingLanguageInformation
+	}
+
+	if t.FunctionDefinition == nil {
+		return ""
+	}
+
+	return (*t.FunctionDefinition).GetProgrammingLanguageInformation()
+}
+
+func (t BasicTestSuite) GetPackageNamespace() string {
+	return t.PackageNamespace
 }
 
 func (t BasicTestSuite) GetFunctionDefinition() *FunctionDefinition {
