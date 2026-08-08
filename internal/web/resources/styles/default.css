@@ -48,29 +48,34 @@
  */
 
 @layer default {
+  /* Palette: http://127.0.0.1:5500/index.html?h=214&mode=light&role=brand&quick=0&light-base=ebf5ff&light-brand=265899&light-textStrong=031833&light-textWeak=676c73&light-strokeStrong=8593a6&light-strokeWeak=c2c6cc&light-fill=e6ebf2&light-success=10652c&light-warning=664100&light-error=9d0202&dark-base=131414&dark-brand=8cbeff&dark-textStrong=ffffff&dark-textWeak=cccccc&dark-strokeStrong=77808c&dark-strokeWeak=242526&dark-fill=1a1a1a&dark-success=8ef1a1&dark-warning=f5d384&dark-error=f48880 */
   :root {
-    --black: #1a1a1a;
-    --white: #ffffff;
+    --error-color-light: #9d0202;
+    --warning-color-light: #664100;
+    --success-color-light: #10652c;
+    --error-color-dark: #f48880;
+    --warning-color-dark: #f5d384;
+    --success-color-dark: #8ef1a1;
 
-    --error-color: red;
-    --warning-color: amber;
-    --success-color: green;
+    --error-color: var(--error-color-light);
+    --warning-color: var(--warning-color-light);
+    --success-color: var(--success-color-light);
 
-    --brand-color-light: #24577a;
-    --text-strong-color-light: #091c29;
-    --text-weak-color-light: #436175;
-    --stroke-strong-color-light: #4a5963;
-    --stroke-weak-color-light: #b5c6d1;
-    --stroke-fill-color-light: #cce0ed;
-    --base-color-light: var(--white);
+    --brand-color-light: #265899;
+    --text-strong-color-light: #031833;
+    --text-weak-color-light: #676c73;
+    --stroke-strong-color-light: #8593a6;
+    --stroke-weak-color-light: #c2c6cc;
+    --stroke-fill-color-light: #e6ebf2;
+    --base-color-light: #ebf5ff;
 
-    --brand-color-dark: #4bb6ff;
-    --text-strong-color-dark: #e6f5ff;
-    --text-weak-color-dark: #a2c4db;
-    --stroke-strong-color-dark: #798994;
-    --stroke-weak-color-dark: #59656e;
-    --stroke-fill-color-dark: #36393d;
-    --base-color-dark: var(--black);
+    --brand-color-dark: #8cbeff;
+    --text-strong-color-dark: #ffffff;
+    --text-weak-color-dark: #cccccc;
+    --stroke-strong-color-dark: #77808c;
+    --stroke-weak-color-dark: #242526;
+    --stroke-fill-color-dark: #1a1a1a;
+    --base-color-dark: #131414;
 
     --brand-color: var(--brand-color-light);
     --text-strong-color: var(--text-strong-color-light);
@@ -83,6 +88,9 @@
 
   @media (prefers-color-scheme: dark) {
     :root {
+      --error-color: var(--error-color-dark);
+      --warning-color: var(--warning-color-dark);
+      --success-color: var(--success-color-dark);
       --brand-color: var(--brand-color-dark);
       --text-strong-color: var(--text-strong-color-dark);
       --text-weak-color: var(--text-weak-color-dark);
@@ -101,6 +109,9 @@
   /* Allow manual theme overriding */
   [data-theme="light"] {
     color-scheme: light;
+    --error-color: var(--error-color-light);
+    --warning-color: var(--warning-color-light);
+    --success-color: var(--success-color-light);
     --brand-color: var(--brand-color-light);
     --text-strong-color: var(--text-strong-color-light);
     --text-weak-color: var(--text-weak-color-light);
@@ -113,6 +124,9 @@
   /* Allow manual theme overriding */
   [data-theme="dark"] {
     color-scheme: dark;
+    --error-color: var(--error-color-dark);
+    --warning-color: var(--warning-color-dark);
+    --success-color: var(--success-color-dark);
     --brand-color: var(--brand-color-dark);
     --text-strong-color: var(--text-strong-color-dark);
     --text-weak-color: var(--text-weak-color-dark);
