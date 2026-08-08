@@ -48,7 +48,7 @@
  */
 
 @layer default {
-  /* Palette: http://127.0.0.1:5500/index.html?h=214&mode=light&role=brand&quick=0&light-base=ebf5ff&light-brand=265899&light-textStrong=031833&light-textWeak=676c73&light-strokeStrong=8593a6&light-strokeWeak=c2c6cc&light-fill=e6ebf2&light-success=10652c&light-warning=664100&light-error=9d0202&dark-base=131414&dark-brand=8cbeff&dark-textStrong=ffffff&dark-textWeak=cccccc&dark-strokeStrong=77808c&dark-strokeWeak=242526&dark-fill=1a1a1a&dark-success=8ef1a1&dark-warning=f5d384&dark-error=f48880 */
+  /* Palette: https://jfkonecn.github.io/monochromatic-color-palette-maker/?h=214&mode=light&role=brand&quick=0&light-base=ebf5ff&light-brand=265899&light-textStrong=031833&light-textWeak=676c73&light-strokeStrong=8593a6&light-strokeWeak=c2c6cc&light-fill=e6ebf2&light-success=10652c&light-warning=664100&light-error=9d0202&dark-base=131414&dark-brand=8cbeff&dark-textStrong=ffffff&dark-textWeak=cccccc&dark-strokeStrong=77808c&dark-strokeWeak=242526&dark-fill=1a1a1a&dark-success=8ef1a1&dark-warning=f5d384&dark-error=f48880 */
   :root {
     --error-color-light: #9d0202;
     --warning-color-light: #664100;
@@ -403,7 +403,9 @@
     padding: var(--space-2xs) var(--space-xs);
   }
 
-  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not(
+      [type="color"]
+    ),
   select,
   textarea {
     width: min(100%, 28rem);
