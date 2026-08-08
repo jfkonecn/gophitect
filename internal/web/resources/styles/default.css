@@ -1,43 +1,86 @@
-/* https://coolors.co/ to randomly compare at colors
- * Use https://color.adobe.com/create/color-wheel for match sure your colors match
+/* to randomly compare at colors...
+ * https://coolors.co/
+ * https://coolors.co/004e64-f0f0c9-24577a-8da1b9-311e10
+ *
+ * Use this for match sure your colors match
+ * https://color.adobe.com/create/color-wheel
  * Lock your primary color in adobe
- * Triad and complementary is good for accents
+ *
  * Primary, ~60%: choose the dominant hue and control its lightness for the theme.
  * In light mode it is often very light or near-neutral. In dark mode it is usually
- * a dark, low-saturation version of the same hue. Secondary, ~30%: usually choose a
+ * a dark, low-saturation version of the same hue.
+ *
+ * Secondary, ~30%: usually choose a
  * color close to the primary on the color wheel. Analogous or monochromatic
  * relationships are safest because they create hierarchy without making the
- * interface noisy. Accent, ~10%: choose a color with stronger hue contrast.
+ * interface noisy.
+ *
+ * Accent, ~10%: choose a color with stronger hue contrast.
  * Complementary or split-complementary relationships work well here because the
  * accent needs to stand out.
  * */
 @layer default {
   :root {
     /* Primary — use for ~60% of the interface */
-    --primary: #f2f4f3;
-
     /* Secondary — use for ~30% of the interface */
-    --secondary: #315f7d;
-
     /* Accent — use for ~10% of the interface */
-    --accent: #d6a928;
+
+    --primary-color-light: #f2f4f3;
+    --secondary-color-light: #315f7d;
+    --accent-color-light: #d6a928;
+    --text-color-light: #000000;
+    --base-color-light: #ffffff;
+
+    --primary-color-dark: #102b3a;
+    --secondary-color-dark: #32627d;
+    --accent-color-dark: #e0b83f;
+    --text-color-dark: #ffffff;
+    --base-color-dark: #000000;
+
+    --primary-color: var(--primary-color-light);
+    --secondary-color: var(--secondary-color-light);
+    --accent-color: var(--accent-color-light);
+    --text-color: var(--text-color-light);
+    --base-color: var(--base-color-light);
   }
 
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --primary-color: var(--primary-color-dark);
+      --secondary-color: var(--secondary-color-dark);
+      --accent-color: var(--accent-color-dark);
+      --text-color: var(--text-color-dark);
+      --base-color: var(--base-color-dark);
+    }
+  }
+
+  /* Let browser know we support both light and dark mode */
+  html {
+    color-scheme: light dark;
+  }
+
+  /* Allow manual theme overriding */
+  [data-theme="light"] {
+    color-scheme: light;
+    --primary-color: var(--primary-color-light);
+    --secondary-color: var(--secondary-color-light);
+    --accent-color: var(--accent-color-light);
+    --text-color: var(--text-color-light);
+    --base-color: var(--base-color-light);
+  }
+
+  /* Allow manual theme overriding */
   [data-theme="dark"] {
-    /* Primary — use for ~60% of the interface */
-    --primary: #102b3a;
-
-    /* Secondary — use for ~30% of the interface */
-    --secondary: #32627d;
-
-    /* Accent — use for ~10% of the interface */
-    --accent: #e0b83f;
+    color-scheme: dark;
+    --primary-color: var(--primary-color-dark);
+    --secondary-color: var(--secondary-color-dark);
+    --accent-color: var(--accent-color-dark);
+    --text-color: var(--text-color-dark);
+    --base-color: var(--base-color-dark);
   }
+
   body {
-    background-color: var(--bg);
-    background-image:
-      linear-gradient(var(--grid-line) 1px, transparent 1px),
-      linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
-    background-size: 24px 24px;
+    color: var(--text-color);
+    background-color: var(--base-color);
   }
 }

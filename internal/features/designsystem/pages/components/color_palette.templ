@@ -1,0 +1,26 @@
+package components
+
+type theme string
+
+const (
+Dark theme = "dark"
+Light theme = "light"
+)
+
+templ ColorPalette(theme theme) {
+    <div>
+        <style>
+        .color-palette {
+            .primary {
+                background-color: var(--primary-color);
+            }
+        }
+        </style>
+        <section data-theme={theme} class="color-palette">
+            <p class="theme">{theme}</p>
+            <p class="primary">Primary</p>
+            <p class="secondary">Secondary</p>
+            <p class="accent">Accent</p>
+        </section>
+    </div>
+}

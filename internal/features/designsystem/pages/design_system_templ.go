@@ -11,6 +11,7 @@ import templruntime "github.com/a-h/templ/runtime"
 import (
 	"github.com/jfkonecn/gophitect/internal/features/common/components"
 	"github.com/jfkonecn/gophitect/internal/features/common/layouts"
+	designsystemcomponents "github.com/jfkonecn/gophitect/internal/features/designsystem/pages/components"
 )
 
 func DesignSystemPage() templ.Component {
@@ -50,7 +51,23 @@ func DesignSystemPage() templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, " <main><section><header><p>Developer Preview</p><h1>Design System</h1><p>A dev-only inventory of layout, color, typography, and interactive primitives currently available to the app.</p></header><section><div><p>Primary</p><p>Actions and active states</p></div><div><p>Secondary</p><p>Supporting emphasis</p></div><div><p>Accent</p><p>Highlights and decoration</p></div><div><p>Neutral</p><p>Dense surfaces</p></div></section><section><div><h2>Typography</h2><div><div><p>Display</p><p>Build clear interfaces.</p></div><div><p>Body</p><p>Use concise copy, strong hierarchy, and predictable spacing across pages.</p></div><code>font-mono / Fira Code</code></div></div><div><h2>Controls</h2><div><button>Primary</button> <button>Secondary</button> <button>Accent</button> <button>Outline</button></div><div><label><span>Name</span> <input type=\"text\"></label> <select><option>Default</option> <option>Compact</option></select></div></div></section><section><article><div><h2>Card Surface</h2><p>Cards group related content with a soft container and clear action area.</p><div><button>Action</button></div></div></article><div><h2>Info State</h2><p>Use state color sparingly for feedback that needs attention.</p></div><div><h2>Success State</h2><p>Reserve success for completed operations or healthy systems.</p></div></section></section></main>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, " <main><section><header><p>Developer Preview</p><h1>Design System</h1><p>A dev-only inventory of layout, color, typography, and interactive primitives currently available to the app.</p></header>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = components.Navigation(components.PageDesignSystem).Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = designsystemcomponents.ColorPalette(designsystemcomponents.Light).Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = designsystemcomponents.ColorPalette(designsystemcomponents.Dark).Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<section><div><p>Primary</p><p>Actions and active states</p></div><div><p>Secondary</p><p>Supporting emphasis</p></div><div><p>Accent</p><p>Highlights and decoration</p></div><div><p>Neutral</p><p>Dense surfaces</p></div></section><section><div><h2>Typography</h2><div><div><p>Display</p><p>Build clear interfaces.</p></div><div><p>Body</p><p>Use concise copy, strong hierarchy, and predictable spacing across pages.</p></div><code>font-mono / Fira Code</code></div></div><div><h2>Controls</h2><div><button>Primary</button> <button>Secondary</button> <button>Accent</button> <button>Outline</button></div><div><label><span>Name</span> <input type=\"text\"></label> <select><option>Default</option> <option>Compact</option></select></div></div></section><section><article><div><h2>Card Surface</h2><p>Cards group related content with a soft container and clear action area.</p><div><button>Action</button></div></div></article><div><h2>Info State</h2><p>Use state color sparingly for feedback that needs attention.</p></div><div><h2>Success State</h2><p>Reserve success for completed operations or healthy systems.</p></div></section></section></main>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

@@ -2,6 +2,7 @@ package pages
 
 import (
 	"github.com/jfkonecn/gophitect/internal/features/common/components"
+	designsystemcomponents "github.com/jfkonecn/gophitect/internal/features/designsystem/pages/components"
 	"github.com/jfkonecn/gophitect/internal/features/common/layouts"
 )
 
@@ -16,6 +17,9 @@ templ DesignSystemPage() {
 					<p>A dev-only inventory of layout, color, typography, and interactive primitives currently available to the app.</p>
 				</header>
 
+                @components.Navigation(components.PageDesignSystem)
+                @designsystemcomponents.ColorPalette(designsystemcomponents.Light)
+                @designsystemcomponents.ColorPalette(designsystemcomponents.Dark)
 				<section>
 					<div>
 						<p>Primary</p>
