@@ -8,6 +8,7 @@ import (
 
 	"github.com/jfkonecn/gophitect/internal/config"
 	counterFeature "github.com/jfkonecn/gophitect/internal/features/counter"
+	designSystemFeature "github.com/jfkonecn/gophitect/internal/features/designsystem"
 	indexFeature "github.com/jfkonecn/gophitect/internal/features/index"
 	monitorFeature "github.com/jfkonecn/gophitect/internal/features/monitor"
 	reverseFeature "github.com/jfkonecn/gophitect/internal/features/reverse"
@@ -23,6 +24,9 @@ func SetupRoutes(ctx context.Context, router chi.Router, sessionStore *sessions.
 
 	if config.Global.Environment == config.Dev {
 		setupReload(router)
+		if err := designSystemFeature.SetupRoutes(router); err != nil {
+			return fmt.Errorf("error setting up design system routes: %w", err)
+		}
 	}
 
 	router.Handle("/static/*", resources.Handler())
