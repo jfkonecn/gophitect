@@ -12,8 +12,5 @@ func SetupRoutes(ctx context.Context, router chi.Router, store sessions.Store) e
 
 	router.Get("/", handlers.IndexPage)
 
-	router.Route("/api", func(apiRouter chi.Router) {
-	})
-
 	return nil
 }

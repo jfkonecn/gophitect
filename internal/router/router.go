@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"sync"
 
 	"github.com/jfkonecn/gophitect/internal/config"
 	counterFeature "github.com/jfkonecn/gophitect/internal/features/counter"
@@ -43,15 +42,12 @@ func SetupRoutes(ctx context.Context, router chi.Router, sessionStore *sessions.
 
 func setupReload(router chi.Router) {
 	reloadChan := make(chan struct{}, 1)
-	var hotReloadOnce sync.Once
 
 	router.Get("/reload", func(w http.ResponseWriter, r *http.Request) {
 		sse := datastar.NewSSE(w, r)
-		reload := func() { sse.ExecuteScript("window.location.reload()") }
-		hotReloadOnce.Do(reload)
 		select {
 		case <-reloadChan:
-			reload()
+			sse.ExecuteScript("window.location.reload()")
 		case <-r.Context().Done():
 		}
 	})
