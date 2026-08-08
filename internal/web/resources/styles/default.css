@@ -219,48 +219,283 @@
     color: var(--text-strong-color);
     background-color: var(--base-color);
     font-size: var(--step-0);
-    .pill {
-      border-radius: var(--radius-lg);
-    }
-    font-size: var(--step-0);
-    label,
-    input,
-    button,
-    select,
-    legend {
-      color: var(--text-strong-color);
-      font-size: var(--step-0);
-      padding: var(--space-3xs);
-      margin: var(--space-2xs) 0;
-    }
-    ::placeholder {
-      color: var(--text-weak-color);
-    }
+    line-height: 1.5;
+  }
 
-    button,
-    input[type="reset"],
-    input[type="button"],
-    input[type="submit"] {
-      font-size: var(--step-0);
-      border-radius: var(--radius-m);
-      padding: var(--space-2xs);
-      color: var(--brand-color);
-      background-color: var(--fill-color);
-      border-color: var(--brand-color);
-      &:hover {
-        cursor: pointer;
-      }
-    }
+  body {
+    min-height: 100vh;
+  }
 
-    fieldset {
-      border-color: var(--stroke-strong-color);
-      border-width: 2px;
-      border-style: solid;
-    }
+  [data-theme] {
+    border-radius: var(--radius-xl);
+  }
 
-    input {
-      border-color: var(--brand-color);
-      border-width: 2px;
-    }
+  main,
+  section,
+  article,
+  header,
+  footer,
+  form,
+  fieldset {
+    display: flow-root;
+  }
+
+  main {
+    padding-block: var(--space-l);
+  }
+
+  section,
+  article,
+  header,
+  form,
+  fieldset {
+    margin-block-end: var(--space-m);
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  legend,
+  strong,
+  b {
+    color: var(--text-strong-color);
+    font-weight: 700;
+    line-height: 1.1;
+  }
+
+  h1 {
+    font-size: var(--step-5);
+    letter-spacing: -0.04em;
+    margin-block-end: var(--space-s);
+  }
+
+  h2 {
+    font-size: var(--step-3);
+    letter-spacing: -0.03em;
+    margin-block-end: var(--space-xs);
+  }
+
+  h3 {
+    font-size: var(--step-2);
+    margin-block-end: var(--space-2xs);
+  }
+
+  h4 {
+    font-size: var(--step-1);
+    margin-block-end: var(--space-2xs);
+  }
+
+  p,
+  ul,
+  ol,
+  dl,
+  blockquote,
+  pre {
+    margin-block-end: var(--space-s);
+  }
+
+  p,
+  li,
+  dd,
+  figcaption,
+  small {
+    color: var(--text-weak-color);
+  }
+
+  a {
+    color: var(--brand-color);
+    text-decoration-color: var(--stroke-strong-color);
+    text-decoration-thickness: 0.08em;
+    text-underline-offset: 0.18em;
+  }
+
+  a:hover {
+    text-decoration-color: currentColor;
+  }
+
+  ul,
+  ol {
+    padding-inline-start: var(--space-m);
+  }
+
+  ul {
+    list-style: disc;
+  }
+
+  ol {
+    list-style: decimal;
+  }
+
+  code,
+  kbd,
+  samp,
+  pre {
+    border-radius: var(--radius-s);
+    color: var(--text-strong-color);
+    background-color: var(--stroke-fill-color);
+  }
+
+  code,
+  kbd,
+  samp {
+    padding: 0.1em 0.3em;
+    font-size: var(--step--1);
+  }
+
+  pre {
+    overflow-x: auto;
+    padding: var(--space-xs);
+  }
+
+  blockquote {
+    border-inline-start: 0.25rem solid var(--brand-color);
+    padding-inline-start: var(--space-s);
+  }
+
+  mark {
+    border-radius: var(--radius-xs);
+    color: var(--base-color);
+    background-color: var(--warning-color);
+    padding-inline: 0.2em;
+  }
+
+  hr {
+    border: 0;
+    border-block-start: 1px solid var(--stroke-weak-color);
+    margin-block: var(--space-l);
+  }
+
+  fieldset {
+    border: 1px solid var(--stroke-strong-color);
+    border-radius: var(--radius-l);
+    padding: var(--space-s);
+  }
+
+  legend {
+    padding-inline: var(--space-2xs);
+  }
+
+  label {
+    display: inline-block;
+    color: var(--text-strong-color);
+    font-size: var(--step--1);
+    font-weight: 700;
+    margin-block-end: var(--space-3xs);
+  }
+
+  output {
+    color: var(--text-strong-color);
+    font-weight: 700;
+  }
+
+  input,
+  button,
+  select,
+  textarea {
+    color: var(--text-strong-color);
+    background-color: var(--base-color);
+    border: 1px solid var(--stroke-strong-color);
+    border-radius: var(--radius-m);
+    font: inherit;
+    padding: var(--space-2xs) var(--space-xs);
+  }
+
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),
+  select,
+  textarea {
+    width: min(100%, 28rem);
+  }
+
+  textarea {
+    min-height: 8rem;
+    resize: vertical;
+  }
+
+  ::placeholder {
+    color: var(--text-weak-color);
+    opacity: 1;
+  }
+
+  button,
+  input[type="reset"],
+  input[type="button"],
+  input[type="submit"] {
+    color: var(--base-color);
+    background-color: var(--brand-color);
+    border-color: var(--brand-color);
+    font-weight: 700;
+  }
+
+  button:hover,
+  input[type="reset"]:hover,
+  input[type="button"]:hover,
+  input[type="submit"]:hover {
+    cursor: pointer;
+    filter: brightness(1.08);
+  }
+
+  button[type="reset"],
+  input[type="reset"] {
+    color: var(--brand-color);
+    background-color: transparent;
+  }
+
+  input:focus-visible,
+  button:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible,
+  a:focus-visible {
+    outline: 3px solid var(--brand-color);
+    outline-offset: 2px;
+  }
+
+  input:disabled,
+  button:disabled,
+  select:disabled,
+  textarea:disabled {
+    color: var(--text-weak-color);
+    background-color: var(--stroke-fill-color);
+    cursor: not-allowed;
+    opacity: 0.75;
+  }
+
+  input[readonly],
+  textarea[readonly] {
+    background-color: var(--stroke-fill-color);
+  }
+
+  input:user-invalid,
+  textarea:user-invalid,
+  select:user-invalid {
+    border-color: var(--error-color);
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  th,
+  td {
+    border-block-end: 1px solid var(--stroke-weak-color);
+    padding: var(--space-2xs);
+    text-align: start;
+  }
+
+  th {
+    color: var(--text-strong-color);
+    background-color: var(--stroke-fill-color);
+    font-weight: 700;
+  }
+
+  .pill {
+    border: 1px solid var(--stroke-weak-color);
+    border-radius: var(--radius-4xl);
+    color: var(--text-strong-color);
+    background-color: var(--stroke-fill-color);
+    padding: var(--space-3xs) var(--space-2xs);
   }
 }

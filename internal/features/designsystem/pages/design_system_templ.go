@@ -51,11 +51,7 @@ func DesignSystemPage() templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, " <main><section><header><p>Developer Preview</p><h1>Design System</h1><p>A dev-only inventory of layout, color, typography, and interactive primitives currently available to the app.</p></header>")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = components.Navigation(components.PageDesignSystem).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, " <main class=\"u-container\"><section><header><p>Developer Preview</p><h1>Design System</h1><p>A dev-only inventory of default element styles driven by the color, type, space, radius, and grid variables.</p></header><section><h2>Type Defaults</h2><h1>Heading one uses step 5.</h1><h2>Heading two uses step 3.</h2><h3>Heading three uses step 2.</h3><p>Paragraph text uses the weak text color by default. It should remain readable against the current base color.</p><p>Inline <a href=\"/design-system\">links</a>, <code>code</code>, <strong>strong text</strong>, and <span class=\"pill\">pills</span> should read clearly in either theme.</p><blockquote>Blockquotes use brand color as a structural accent.</blockquote><ul><li>Lists regain readable indentation after the reset.</li><li>List text uses the weak text color.</li></ul></section><section><h2>Theme Containers</h2><div class=\"u-grid\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -67,7 +63,7 @@ func DesignSystemPage() templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<section><div><p>Primary</p><p>Actions and active states</p></div><div><p>Secondary</p><p>Supporting emphasis</p></div><div><p>Accent</p><p>Highlights and decoration</p></div><div><p>Neutral</p><p>Dense surfaces</p></div></section><section><div><h2>Typography</h2><div><div><p>Display</p><p>Build clear interfaces.</p></div><div><p>Body</p><p>Use concise copy, strong hierarchy, and predictable spacing across pages.</p></div><code>font-mono / Fira Code</code></div></div><div><h2>Controls</h2><div><button>Primary</button> <button>Secondary</button> <button>Accent</button> <button>Outline</button></div><div><label><span>Name</span> <input type=\"text\"></label> <select><option>Default</option> <option>Compact</option></select></div></div></section><section><article><div><h2>Card Surface</h2><p>Cards group related content with a soft container and clear action area.</p><div><button>Action</button></div></div></article><div><h2>Info State</h2><p>Use state color sparingly for feedback that needs attention.</p></div><div><h2>Success State</h2><p>Reserve success for completed operations or healthy systems.</p></div></section></section></main>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div></section></section></main>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

@@ -9,14 +9,56 @@ Light theme = "light"
 
 templ ColorPalette(theme theme) {
     <section data-theme={theme} class="color-palette">
+        <header>
+          <p class="pill">{theme}</p>
+          <h2>{theme} Theme</h2>
+          <p>This section sets <code>data-theme</code>, so default tag styles should resolve against the section's theme variables.</p>
+        </header>
+        <article>
+          <h3>Text Content</h3>
+          <p>Paragraph copy uses weak text for comfortable reading. A <a href="/design-system">text link</a>, <strong>strong phrase</strong>, <em>emphasized phrase</em>, <mark>mark element</mark>, <code>inline code</code>, <kbd>kbd</kbd>, and <small>small note</small> should all remain legible.</p>
+          <blockquote>Use blockquotes for quoted or highlighted narrative content.</blockquote>
+          <h4>Lists</h4>
+          <ul>
+            <li>Unordered item one</li>
+            <li>Unordered item two</li>
+          </ul>
+          <ol>
+            <li>Ordered item one</li>
+            <li>Ordered item two</li>
+          </ol>
+          <pre><code>theme.name = "{theme}"
+theme.active = true</code></pre>
+        </article>
+        <article>
+          <h3>Table</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Token</th>
+                <th>Use</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>brand</code></td>
+                <td>Links, focus, and primary actions</td>
+              </tr>
+              <tr>
+                <td><code>stroke</code></td>
+                <td>Borders and low-emphasis separation</td>
+              </tr>
+            </tbody>
+          </table>
+        </article>
         <form>
           <fieldset>
             <legend>Text Inputs</legend>
 
             <p>
-              <label for="name">Name</label>
+              <label for={string(theme) + "-name"}>Name</label>
               <input
-                id="name"
+                id={string(theme) + "-name"}
                 name="name"
                 type="text"
                 required
@@ -27,9 +69,9 @@ templ ColorPalette(theme theme) {
             </p>
 
             <p>
-              <label for="username">Username</label>
+              <label for={string(theme) + "-username"}>Username</label>
               <input
-                id="username"
+                id={string(theme) + "-username"}
                 name="username"
                 type="text"
                 required
@@ -41,9 +83,9 @@ templ ColorPalette(theme theme) {
             </p>
 
             <p>
-              <label for="password">Password</label>
+              <label for={string(theme) + "-password"}>Password</label>
               <input
-                id="password"
+                id={string(theme) + "-password"}
                 name="password"
                 type="password"
                 required
@@ -52,9 +94,9 @@ templ ColorPalette(theme theme) {
             </p>
 
             <p>
-              <label for="email">Email</label>
+              <label for={string(theme) + "-email"}>Email</label>
               <input
-                id="email"
+                id={string(theme) + "-email"}
                 name="email"
                 type="email"
                 required
@@ -63,9 +105,9 @@ templ ColorPalette(theme theme) {
             </p>
 
             <p>
-              <label for="phone">Phone</label>
+              <label for={string(theme) + "-phone"}>Phone</label>
               <input
-                id="phone"
+                id={string(theme) + "-phone"}
                 name="phone"
                 type="tel"
                 required
@@ -77,9 +119,9 @@ templ ColorPalette(theme theme) {
             </p>
 
             <p>
-              <label for="website">Website</label>
+              <label for={string(theme) + "-website"}>Website</label>
               <input
-                id="website"
+                id={string(theme) + "-website"}
                 name="website"
                 type="url"
                 placeholder="https://example.com"
@@ -87,9 +129,9 @@ templ ColorPalette(theme theme) {
             </p>
 
             <p>
-              <label for="search">Search</label>
+              <label for={string(theme) + "-search"}>Search</label>
               <input
-                id="search"
+                id={string(theme) + "-search"}
                 name="search"
                 type="search"
                 minlength="2"
@@ -101,9 +143,9 @@ templ ColorPalette(theme theme) {
             <legend>Numbers</legend>
 
             <p>
-              <label for="age">Age</label>
+              <label for={string(theme) + "-age"}>Age</label>
               <input
-                id="age"
+                id={string(theme) + "-age"}
                 name="age"
                 type="number"
                 required
@@ -114,9 +156,9 @@ templ ColorPalette(theme theme) {
             </p>
 
             <p>
-              <label for="price">Price</label>
+              <label for={string(theme) + "-price"}>Price</label>
               <input
-                id="price"
+                id={string(theme) + "-price"}
                 name="price"
                 type="number"
                 min="0"
@@ -126,9 +168,9 @@ templ ColorPalette(theme theme) {
             </p>
 
             <p>
-              <label for="rating">Rating</label>
+              <label for={string(theme) + "-rating"}>Rating</label>
               <input
-                id="rating"
+                id={string(theme) + "-rating"}
                 name="rating"
                 type="range"
                 min="0"
@@ -143,9 +185,9 @@ templ ColorPalette(theme theme) {
             <legend>Dates and Times</legend>
 
             <p>
-              <label for="date">Date</label>
+              <label for={string(theme) + "-date"}>Date</label>
               <input
-                id="date"
+                id={string(theme) + "-date"}
                 name="date"
                 type="date"
                 required
@@ -155,9 +197,9 @@ templ ColorPalette(theme theme) {
             </p>
 
             <p>
-              <label for="time">Time</label>
+              <label for={string(theme) + "-time"}>Time</label>
               <input
-                id="time"
+                id={string(theme) + "-time"}
                 name="time"
                 type="time"
                 required
@@ -167,27 +209,27 @@ templ ColorPalette(theme theme) {
             </p>
 
             <p>
-              <label for="datetime">Date and time</label>
+              <label for={string(theme) + "-datetime"}>Date and time</label>
               <input
-                id="datetime"
+                id={string(theme) + "-datetime"}
                 name="datetime"
                 type="datetime-local"
               >
             </p>
 
             <p>
-              <label for="month">Month</label>
+              <label for={string(theme) + "-month"}>Month</label>
               <input
-                id="month"
+                id={string(theme) + "-month"}
                 name="month"
                 type="month"
               >
             </p>
 
             <p>
-              <label for="week">Week</label>
+              <label for={string(theme) + "-week"}>Week</label>
               <input
-                id="week"
+                id={string(theme) + "-week"}
                 name="week"
                 type="week"
               >
@@ -201,44 +243,44 @@ templ ColorPalette(theme theme) {
 
             <p>
               <input
-                id="contact-email"
+                id={string(theme) + "-contact-email"}
                 name="contact-method"
                 type="radio"
                 value="email"
                 required
               >
-              <label for="contact-email">Email</label>
+              <label for={string(theme) + "-contact-email"}>Email</label>
             </p>
 
             <p>
               <input
-                id="contact-phone"
+                id={string(theme) + "-contact-phone"}
                 name="contact-method"
                 type="radio"
                 value="phone"
               >
-              <label for="contact-phone">Phone</label>
+              <label for={string(theme) + "-contact-phone"}>Phone</label>
             </p>
 
             <p>
               <input
-                id="terms"
+                id={string(theme) + "-terms"}
                 name="terms"
                 type="checkbox"
                 required
               >
-              <label for="terms">
+              <label for={string(theme) + "-terms"}>
                 I agree to the terms
               </label>
             </p>
 
             <p>
               <input
-                id="newsletter"
+                id={string(theme) + "-newsletter"}
                 name="newsletter"
                 type="checkbox"
               >
-              <label for="newsletter">
+              <label for={string(theme) + "-newsletter"}>
                 Subscribe to newsletter
               </label>
             </p>
@@ -248,8 +290,8 @@ templ ColorPalette(theme theme) {
             <legend>Select Elements</legend>
 
             <p>
-              <label for="country">Country</label>
-              <select id="country" name="country" required>
+              <label for={string(theme) + "-country"}>Country</label>
+              <select id={string(theme) + "-country"} name="country" required>
                 <option value="">Select a country</option>
                 <option value="us">United States</option>
                 <option value="ca">Canada</option>
@@ -258,9 +300,9 @@ templ ColorPalette(theme theme) {
             </p>
 
             <p>
-              <label for="languages">Languages</label>
+              <label for={string(theme) + "-languages"}>Languages</label>
               <select
-                id="languages"
+                id={string(theme) + "-languages"}
                 name="languages"
                 multiple
                 size="4"
@@ -278,9 +320,9 @@ templ ColorPalette(theme theme) {
             <legend>Other Inputs</legend>
 
             <p>
-              <label for="color">Favorite color</label>
+              <label for={string(theme) + "-color"}>Favorite color</label>
               <input
-                id="color"
+                id={string(theme) + "-color"}
                 name="color"
                 type="color"
                 value="#315f7d"
@@ -288,9 +330,9 @@ templ ColorPalette(theme theme) {
             </p>
 
             <p>
-              <label for="file">Upload file</label>
+              <label for={string(theme) + "-file"}>Upload file</label>
               <input
-                id="file"
+                id={string(theme) + "-file"}
                 name="file"
                 type="file"
                 required
@@ -299,9 +341,9 @@ templ ColorPalette(theme theme) {
             </p>
 
             <p>
-              <label for="files">Upload multiple files</label>
+              <label for={string(theme) + "-files"}>Upload multiple files</label>
               <input
-                id="files"
+                id={string(theme) + "-files"}
                 name="files"
                 type="file"
                 multiple
@@ -320,9 +362,9 @@ templ ColorPalette(theme theme) {
             <legend>Textarea</legend>
 
             <p>
-              <label for="comments">Comments</label>
+              <label for={string(theme) + "-comments"}>Comments</label>
               <textarea
-                id="comments"
+                id={string(theme) + "-comments"}
                 name="comments"
                 required
                 minlength="10"
@@ -338,15 +380,15 @@ templ ColorPalette(theme theme) {
             <legend>Data List</legend>
 
             <p>
-              <label for="browser">Browser</label>
+              <label for={string(theme) + "-browser"}>Browser</label>
               <input
-                id="browser"
+                id={string(theme) + "-browser"}
                 name="browser"
-                list="browsers"
+                list={string(theme) + "-browsers"}
                 required
               >
 
-              <datalist id="browsers">
+              <datalist id={string(theme) + "-browsers"}>
                 <option value="Firefox"/>
                 <option value="Chrome"/>
                 <option value="Safari"/>
@@ -359,9 +401,9 @@ templ ColorPalette(theme theme) {
             <legend>Read-only and Disabled</legend>
 
             <p>
-              <label for="account-id">Account ID</label>
+              <label for={string(theme) + "-account-id"}>Account ID</label>
               <input
-                id="account-id"
+                id={string(theme) + "-account-id"}
                 name="account-id"
                 type="text"
                 value="ABC-123"
@@ -370,9 +412,9 @@ templ ColorPalette(theme theme) {
             </p>
 
             <p>
-              <label for="disabled-input">Disabled input</label>
+              <label for={string(theme) + "-disabled-input"}>Disabled input</label>
               <input
-                id="disabled-input"
+                id={string(theme) + "-disabled-input"}
                 name="disabled-input"
                 type="text"
                 value="Cannot edit this"
