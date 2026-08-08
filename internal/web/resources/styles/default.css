@@ -1,55 +1,94 @@
-/* to randomly compare at colors...
+/*
+ * Brand - used to indicate interactive elements like text links and buttons.
+ * Contrast with fill variation must be at least: 4.5:1
+ *
+ * Text strong - used for primary text, like headings, body content, and form
+ * labels to ensure they’re prominent and legibly
+ * Contrast with fill variation must be at least: 4.5:1
+ * Greatly decrease the brightness of the brand color. Aim for a very dark
+ * gray with a tinge of the brand color. Because this variation is so dark,
+ * you’ll need to saturate it quite heavily.
+ *
+ * Text weak - used for supporting text to make it less prominently
+ * Contrast with fill variation must be at least: 4.5:1
+ * Increase the brightness and decrease the saturation of the previous
+ * variation. Aim for a dark gray with a tinge of the brand color.
+ *
+ * Stroke strong - used for non-decorative borders on interface elements like form
+ * input fields. Also used for icons.
+ * Contrast with fill variation must be at least: 3:1
+ * Increase the brightness and decrease the saturation of the previous
+ * variation. Aim for a medium gray with a tinge of the brand color.
+ *
+ * Stroke weak - used for decorative borders, like dividing lines, that aren’t
+ * critical to identifying interface elements.
+ * This is a decorative color, so it doesn’t need to be high contrast.
+ * Increase the brightness and decrease the saturation of the previous
+ * variation. Aim for a light gray with a tinge of the brand color.
+ *
+ * Fill - used as a secondary background to help differentiate elements, like tags
+ * or badges, that sit on the main white background.
+ * The color of any text and interface elements that sit on this background
+ * color need to have a contrast ratio that meets WCAG 2.1 level AA
+ * accessibility requirements.
+ * Increase the brightness and decrease the saturation of the previous
+ * variation. Aim for a very light gray with a tinge of the brand color.
+ *
+ * Background - Do I need to explain?
+ * Text and interface elements sitting on this color must have sufficient contrast
+ *
+ * Ensure a contrast ratio of 4.5:1 between primary and background colors
+ * https://webaim.org/resources/contrastchecker/
+ *
+ * To help find a brand color
  * https://coolors.co/
- * https://coolors.co/004e64-f0f0c9-24577a-8da1b9-311e10
  *
- * Use this for match sure your colors match
+ * To help create non-brand colors
  * https://color.adobe.com/create/color-wheel
- * Lock your primary color in adobe
- *
- * Primary, ~60%: choose the dominant hue and control its lightness for the theme.
- * In light mode it is often very light or near-neutral. In dark mode it is usually
- * a dark, low-saturation version of the same hue.
- *
- * Secondary, ~30%: usually choose a
- * color close to the primary on the color wheel. Analogous or monochromatic
- * relationships are safest because they create hierarchy without making the
- * interface noisy.
- *
- * Accent, ~10%: choose a color with stronger hue contrast.
- * Complementary or split-complementary relationships work well here because the
- * accent needs to stand out.
- * */
+ */
+
 @layer default {
   :root {
-    /* Primary — use for ~60% of the interface */
-    /* Secondary — use for ~30% of the interface */
-    /* Accent — use for ~10% of the interface */
+    --black: #1a1a1a;
+    --white: #ffffff;
 
-    --primary-color-light: #f2f4f3;
-    --secondary-color-light: #315f7d;
-    --accent-color-light: #d6a928;
-    --text-color-light: #000000;
-    --base-color-light: #ffffff;
+    --error-color: red;
+    --warning-color: amber;
+    --success-color: green;
 
-    --primary-color-dark: #102b3a;
-    --secondary-color-dark: #32627d;
-    --accent-color-dark: #e0b83f;
-    --text-color-dark: #ffffff;
-    --base-color-dark: #000000;
+    --brand-color-light: #24577a;
+    --text-strong-color-light: #091c29;
+    --text-weak-color-light: #436175;
+    --stroke-strong-color-light: #4a5963;
+    --stroke-weak-color-light: #b5c6d1;
+    --stroke-fill-color-light: #cce0ed;
+    --base-color-light: var(--white);
 
-    --primary-color: var(--primary-color-light);
-    --secondary-color: var(--secondary-color-light);
-    --accent-color: var(--accent-color-light);
-    --text-color: var(--text-color-light);
+    --brand-color-dark: #4bb6ff;
+    --text-strong-color-dark: #e6f5ff;
+    --text-weak-color-dark: #a2c4db;
+    --stroke-strong-color-dark: #798994;
+    --stroke-weak-color-dark: #59656e;
+    --stroke-fill-color-dark: #36393d;
+    --base-color-dark: var(--black);
+
+    --brand-color: var(--brand-color-light);
+    --text-strong-color: var(--text-strong-color-light);
+    --text-weak-color: var(--text-weak-color-light);
+    --stroke-strong-color: var(--stroke-strong-color-light);
+    --stroke-weak-color: var(--stroke-weak-color-light);
+    --stroke-fill-color: var(--stroke-fill-color-light);
     --base-color: var(--base-color-light);
   }
 
   @media (prefers-color-scheme: dark) {
     :root {
-      --primary-color: var(--primary-color-dark);
-      --secondary-color: var(--secondary-color-dark);
-      --accent-color: var(--accent-color-dark);
-      --text-color: var(--text-color-dark);
+      --brand-color: var(--brand-color-dark);
+      --text-strong-color: var(--text-strong-color-dark);
+      --text-weak-color: var(--text-weak-color-dark);
+      --stroke-strong-color: var(--stroke-strong-color-dark);
+      --stroke-weak-color: var(--stroke-weak-color-dark);
+      --stroke-fill-color: var(--stroke-fill-color-dark);
       --base-color: var(--base-color-dark);
     }
   }
@@ -62,26 +101,30 @@
   /* Allow manual theme overriding */
   [data-theme="light"] {
     color-scheme: light;
-    --primary-color: var(--primary-color-light);
-    --secondary-color: var(--secondary-color-light);
-    --accent-color: var(--accent-color-light);
-    --text-color: var(--text-color-light);
+    --brand-color: var(--brand-color-light);
+    --text-strong-color: var(--text-strong-color-light);
+    --text-weak-color: var(--text-weak-color-light);
+    --stroke-strong-color: var(--stroke-strong-color-light);
+    --stroke-weak-color: var(--stroke-weak-color-light);
+    --stroke-fill-color: var(--stroke-fill-color-light);
     --base-color: var(--base-color-light);
   }
 
   /* Allow manual theme overriding */
   [data-theme="dark"] {
     color-scheme: dark;
-    --primary-color: var(--primary-color-dark);
-    --secondary-color: var(--secondary-color-dark);
-    --accent-color: var(--accent-color-dark);
-    --text-color: var(--text-color-dark);
+    --brand-color: var(--brand-color-dark);
+    --text-strong-color: var(--text-strong-color-dark);
+    --text-weak-color: var(--text-weak-color-dark);
+    --stroke-strong-color: var(--stroke-strong-color-dark);
+    --stroke-weak-color: var(--stroke-weak-color-dark);
+    --stroke-fill-color: var(--stroke-fill-color-dark);
     --base-color: var(--base-color-dark);
   }
 
   body,
   [data-theme] {
-    color: var(--text-color);
+    color: var(--text-strong-color);
     background-color: var(--base-color);
   }
 }
