@@ -1,3 +1,18 @@
-* {
-  background-color: blue;
-}
+/* https://css-tricks.com/css-cascade-layers/
+ * low level reset and normalization styles
+ * element defaults, for basic typography and legibility
+ * themes, like light and dark modes
+ * re-usable patterns that might appear across multiple components
+ * layouts and larger page structures
+ * individual components
+ * overrides and utilities
+ */
+@layer reset,
+  default,
+  themes,
+  patterns,
+  layouts,
+  components,
+  utilities;
+@import "./reset.css";
+@import "./default.css";
