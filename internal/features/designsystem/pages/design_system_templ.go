@@ -51,19 +51,23 @@ func DesignSystemPage() templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, " <main class=\"u-container\"><section><header><p>Developer Preview</p><h1>Design System</h1><p>A dev-only inventory of default element styles driven by the color, type, space, radius, and grid variables.</p></header><section><h2>Type Defaults</h2><h1>Heading one uses step 5.</h1><h2>Heading two uses step 3.</h2><h3>Heading three uses step 2.</h3><p>Paragraph text uses the weak text color by default. It should remain readable against the current base color.</p><p>Inline <a href=\"/design-system\">links</a>, <code>code</code>, <strong>strong text</strong>, and <span class=\"pill\">pills</span> should read clearly in either theme.</p><blockquote>Blockquotes use brand color as a structural accent.</blockquote><ul><li>Lists regain readable indentation after the reset.</li><li>List text uses the weak text color.</li></ul></section><section><h2>Theme Containers</h2><div class=\"u-grid\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, " <main class=\"u-container\"><section><header><p>Developer Preview</p><h1>Design System</h1><p>A dev-only inventory of default element styles driven by the color, type, space, radius, and grid variables.</p></header><section><h2>Type Defaults</h2><h1>Heading one uses step 5.</h1><h2>Heading two uses step 3.</h2><h3>Heading three uses step 2.</h3><p>Paragraph text uses the weak text color by default. It should remain readable against the current base color.</p><p>Inline <a href=\"/design-system\">links</a>, <code>code</code>, <strong>strong text</strong>, and <span class=\"pill\">pills</span> should read clearly in either theme.</p><blockquote>Blockquotes use brand color as a structural accent.</blockquote><ul><li>Lists regain readable indentation after the reset.</li><li>List text uses the weak text color.</li></ul></section>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = designsystemcomponents.ColorPalette(designsystemcomponents.Light).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = designsystemcomponents.DemoButtons().Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = designsystemcomponents.ColorPalette(designsystemcomponents.Dark).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = designsystemcomponents.ColorPalette().Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div></section></section></main>")
+			templ_7745c5c3_Err = designsystemcomponents.DemoForm().Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</section></main>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

@@ -19,7 +19,11 @@ templ Base(title string) {
 			<script defer type="module" src={ resources.StaticPath("datastar/datastar.js") }></script>
 			<link href={ resources.StaticPath("index.css") } rel="stylesheet" type="text/css"/>
 		</head>
-		<body class="flex flex-col h-screen">
+		<body
+            data-attr:data-theme="$theme"
+            data-init="$theme = window.localStorage.getItem('theme') ?? 'light'"
+            data-effect="window.localStorage.setItem('theme', $theme)"
+        >
 			if config.Global.Environment == config.Dev {
 				<div data-init="@get('/reload', {retryMaxCount: Infinity, retryInterval:20, retryMaxWait:200})"></div>
 			}

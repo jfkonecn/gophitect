@@ -31,13 +31,9 @@ templ DesignSystemPage() {
 					</ul>
 				</section>
 
-				<section>
-					<h2>Theme Containers</h2>
-					<div class="u-grid">
-						@designsystemcomponents.ColorPalette(designsystemcomponents.Light)
-						@designsystemcomponents.ColorPalette(designsystemcomponents.Dark)
-					</div>
-				</section>
+                @designsystemcomponents.DemoButtons()
+                @designsystemcomponents.ColorPalette()
+                @designsystemcomponents.DemoForm()
 			</section>
 		</main>
 	}

@@ -16,16 +16,26 @@ const (
 )
 
 templ Navigation(page page) {
-	<nav class="flex justify-center">
-		<ul class="menu menu-vertical md:menu-horizontal bg-base-200 rounded-box">
-			<li class={ "hover:text-primary", templ.KV("text-primary", page == PageIndex) }><a href="/">Home</a></li>
-			<li class={ "hover:text-primary", templ.KV("text-primary", page == PageCounter) }><a href="/counter">Counter</a></li>
-			<li class={ "hover:text-primary", templ.KV("text-primary", page == PageMonitor) }><a href="/monitor">System Monitoring</a></li>
-			<li class={ "hover:text-primary", templ.KV("text-primary", page == PageReverse) }><a href="/reverse">Reverse</a></li>
-			<li class={ "hover:text-primary", templ.KV("text-primary", page == PageSortable) }><a href="/sortable">Sortable</a></li>
+	<nav class="main-nav">
+		<ul class="main-nav-links">
+			<li><a class={templ.KV("active", page == PageIndex)} href="/">Home</a></li>
+			<li><a class={templ.KV("active", page == PageCounter)} href="/counter">Counter</a></li>
+			<li><a class={templ.KV("active", page == PageMonitor)} href="/monitor">Monitor</a></li>
+			<li><a class={templ.KV("active", page == PageReverse)} href="/reverse">Reverse</a></li>
+			<li><a class={templ.KV("active", page == PageSortable)} href="/sortable">Sortable</a></li>
 			if config.Global.Environment == config.Dev {
-				<li class={ "hover:text-primary", templ.KV("text-primary", page == PageDesignSystem) }><a href="/design-system">Design System</a></li>
+                <li><a class={templ.KV("active", page == PageDesignSystem)} href="/design-system">Design System</a></li>
 			}
 		</ul>
+        <ul>
+			<li>
+                <input
+                    class="theme-switch"
+                    type="checkbox"
+                    data-init="el.checked = $theme === 'dark'"
+                    data-on:change="$theme = evt.target.checked ? 'dark' : 'light'"
+                    />
+            </li>
+        </ul>
 	</nav>
 }
