@@ -13,6 +13,7 @@ const (
 	PageReverse
 	PageSortable
 	PageDesignSystem
+	PageBlueprint
 )
 
 templ Navigation(page page) {
@@ -25,6 +26,7 @@ templ Navigation(page page) {
 			<li><a class={templ.KV("active", page == PageSortable)} href="/sortable">Sortable</a></li>
 			if config.Global.Environment == config.Dev {
                 <li><a class={templ.KV("active", page == PageDesignSystem)} href="/design-system">Design System</a></li>
+                <li><a class={templ.KV("active", page == PageBlueprint)} href="/blueprint">Blueprint</a></li>
 			}
 		</ul>
         <ul>

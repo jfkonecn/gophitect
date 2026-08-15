@@ -49,6 +49,10 @@ func build(ctx context.Context) error {
 				InputPath:  resources.LibsDirectoryPath + "/reverse-component/index.ts",
 				OutputPath: "libs/reverse-component",
 			},
+			{
+				InputPath:  resources.LibsDirectoryPath + "/function-component/index.ts",
+				OutputPath: "libs/function-component",
+			},
 			/*
 				uncomment the entrypoint below after running pnpm install in the resources.LibsDirectoryPath + /lit directory
 				esbuild will only be able to find the lit + sortable libraries after doing so

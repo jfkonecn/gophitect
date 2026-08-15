@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/jfkonecn/gophitect/internal/config"
+	"github.com/jfkonecn/gophitect/internal/features/blueprint"
 	counterFeature "github.com/jfkonecn/gophitect/internal/features/counter"
 	designSystemFeature "github.com/jfkonecn/gophitect/internal/features/designsystem"
 	indexFeature "github.com/jfkonecn/gophitect/internal/features/index"
@@ -26,6 +27,12 @@ func SetupRoutes(ctx context.Context, router chi.Router, sessionStore *sessions.
 		setupReload(router)
 		if err := designSystemFeature.SetupRoutes(router); err != nil {
 			return fmt.Errorf("error setting up design system routes: %w", err)
+		}
+		if err := errors.Join(
+			designSystemFeature.SetupRoutes(router),
+			blueprint.SetupRoutes(router),
+		); err != nil {
+			return fmt.Errorf("error setting up routes: %w", err)
 		}
 	}
 

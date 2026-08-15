@@ -14,6 +14,8 @@
 
 !*.go
 !*.templ
+!*.ts
+!*.css
 !go.sum
 !go.mod
 
@@ -24,7 +26,6 @@
 
 internal/web/resources/static/libs/*
 internal/web/resources/static/index.css
-!internal/web/resources/styles/*
 
 # !Makefile
 

@@ -1,0 +1,16 @@
+package pages
+
+import (
+	"github.com/jfkonecn/gophitect/internal/features/common/components"
+	"github.com/jfkonecn/gophitect/internal/features/common/layouts"
+	"github.com/jfkonecn/gophitect/internal/web/resources"
+)
+
+templ Blueprint() {
+	@layouts.Base("Reverse Web Component") {
+		@components.Navigation(components.PageBlueprint)
+        <div>test</div>
+        <function-component></function-component>
+		<script type="module" src={ resources.StaticPath("libs/function-component.js") }></script>
+    }
+}
