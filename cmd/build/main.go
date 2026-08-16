@@ -50,8 +50,8 @@ func build(ctx context.Context) error {
 				OutputPath: "libs/reverse-component",
 			},
 			{
-				InputPath:  resources.LibsDirectoryPath + "/function-component/index.ts",
-				OutputPath: "libs/function-component",
+				InputPath:  resources.LibsDirectoryPath + "/blueprint-component/index.ts",
+				OutputPath: "libs/blueprint-component",
 			},
 			/*
 				uncomment the entrypoint below after running pnpm install in the resources.LibsDirectoryPath + /lit directory

@@ -7,10 +7,24 @@ import (
 )
 
 templ Blueprint() {
-	@layouts.Base("Reverse Web Component") {
+	@layouts.Base("Blueprint") {
 		@components.Navigation(components.PageBlueprint)
-        <div>test</div>
-        <function-component></function-component>
-		<script type="module" src={ resources.StaticPath("libs/function-component.js") }></script>
+        <blueprint-component grid grid-size="32" pan-x="40" pan-y="32">
+            <blueprint-rect id="gateway" x="80" y="80" width="220" height="120">
+                <strong>Gateway</strong>
+                <small>Receives client traffic</small>
+            </blueprint-rect>
+            <blueprint-rect id="worker" x="420" y="96" width="220" height="120">
+                <strong>Worker</strong>
+                <small>Runs unit operations</small>
+            </blueprint-rect>
+            <blueprint-circle id="storage" x="320" y="340" radius="72">
+                <strong>Storage</strong>
+            </blueprint-circle>
+            <blueprint-connection from="gateway" to="worker" arrow-end></blueprint-connection>
+            <blueprint-connection from="worker" to="storage" arrow-end></blueprint-connection>
+            <blueprint-connection from="storage" to="gateway" arrow-start arrow-end></blueprint-connection>
+        </blueprint-component>
+		<script type="module" src={ resources.StaticPath("libs/blueprint-component.js") }></script>
     }
 }

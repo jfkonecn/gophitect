@@ -51,14 +51,14 @@ func Blueprint() templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, " <div>test</div><function-component></function-component><script type=\"module\" src=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, " <blueprint-component grid grid-size=\"32\" pan-x=\"40\" pan-y=\"32\"><blueprint-rect id=\"gateway\" x=\"80\" y=\"80\" width=\"220\" height=\"120\"><strong>Gateway</strong> <small>Receives client traffic</small></blueprint-rect> <blueprint-rect id=\"worker\" x=\"420\" y=\"96\" width=\"220\" height=\"120\"><strong>Worker</strong> <small>Runs unit operations</small></blueprint-rect> <blueprint-circle id=\"storage\" x=\"320\" y=\"340\" radius=\"72\"><strong>Storage</strong></blueprint-circle> <blueprint-connection from=\"gateway\" to=\"worker\" arrow-end></blueprint-connection> <blueprint-connection from=\"worker\" to=\"storage\" arrow-end></blueprint-connection> <blueprint-connection from=\"storage\" to=\"gateway\" arrow-start arrow-end></blueprint-connection></blueprint-component><script type=\"module\" src=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var3 string
-			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.ResolveAttributeValue(resources.StaticPath("libs/function-component.js"))
+			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.ResolveAttributeValue(resources.StaticPath("libs/blueprint-component.js"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/blueprint/pages/blueprint.templ`, Line: 14, Col: 80}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/blueprint/pages/blueprint.templ`, Line: 28, Col: 81}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var3)
 			if templ_7745c5c3_Err != nil {
@@ -70,7 +70,7 @@ func Blueprint() templ.Component {
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = layouts.Base("Reverse Web Component").Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = layouts.Base("Blueprint").Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
